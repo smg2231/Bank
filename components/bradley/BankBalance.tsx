@@ -23,7 +23,7 @@ export default function GetBankBalance() {
             onClick={GetCount}
             >Show bank balance</button>
 
-            (Total Cash in Bank: ${count})
+            <p>Total Cash in Bank: ${count}</p>
         </>
     )
 }
