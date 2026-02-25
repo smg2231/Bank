@@ -11,9 +11,11 @@ export default function GetBankBalance() {
     var GetCount = async function(){
         let req = await fetch(urlBase)
         let res = await req.json()
+        let counter = 0
         for(let x = 0; x < res.length; x++){
-            setCount(Number(res[x].balance))
+            counter += Number(res[x].balance)
         }
+        setCount(counter)
     }
 
     return(
@@ -23,7 +25,7 @@ export default function GetBankBalance() {
             onClick={GetCount}
             >Show bank balance</button>
 
-            <p>Total Cash in Bank: ${count}</p>
+            {count? (<p><br/>Total Cash in Bank: ${count}</p>):null}
         </>
     )
 }

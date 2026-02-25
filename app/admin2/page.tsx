@@ -1,6 +1,6 @@
 import GetBankBalance from "@/components/bradley/BankBalance";
 
-export default function(){
+export default function GetAdminPage(){
     return(
         <>
             <GetBankBalance></GetBankBalance>
