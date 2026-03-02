@@ -6,7 +6,7 @@ export default function GetBankBalance() {
 
     const urlBase = "https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account"
 
-    let [count, setCount] = useState(0)
+    let [balance, setBalance] = useState(0)
 
     var GetCount = async function(){
         let req = await fetch(urlBase)
@@ -15,14 +15,14 @@ export default function GetBankBalance() {
         for(let x = 0; x < res.length; x++){
             counter += Number(res[x].balance)
         }
-        setCount(counter)
+        setBalance(counter)
     }
 
     return(
         <>
             <article>
             
-                {count? (<p><br/>Total Cash in Bank: ${count}</p>):null}
+                {balance? (<p><br/>Total Cash in Bank: ${balance}</p>):null}
 
                 <button
                 type="button"
