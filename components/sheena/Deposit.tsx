@@ -1,54 +1,52 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function DepositBox({ accountId, onDeposit }: { accountId: string, onDeposit?: () => void }) {
+interface DepositProps {
+  accountId: string;
+}
+
+export default function Deposit({ accountId }: DepositProps) {
   const [amount, setAmount] = useState("");
+  const router = useRouter();
 
-  const deposit = async () => {
+  const handleDeposit = async () => {
     const depositAmount = Number(amount);
-    if (!depositAmount || depositAmount <= 0) {
-      alert("Please enter a valid amount");
-      return;
-    }
+    if (!depositAmount || depositAmount <= 0) return;
 
-    try {
-      const res = await fetch(`https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account/${accountId}`);
-      if (!res.ok) {
-        alert("Account not found");
-        return;
-      }
+    const res = await fetch(
+      `https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account/${accountId}`
+    );
+    const account = await res.json();
 
-      const account = await res.json();
-      const newBalance = (Number(account.balance) || 0) + depositAmount;
-
-      await fetch(`https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account/${accountId}`, {
+    await fetch(
+      `https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account/${accountId}`,
+      {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ balance: newBalance }),
-      });
+        body: JSON.stringify({
+          ...account,
+          balance: Number(account.balance) + depositAmount,
+        }),
+      }
+    );
 
-      alert(`Deposited $${depositAmount} successfully!`);
-      setAmount("");
-
-      if (onDeposit) onDeposit();
-
-    } catch (error) {
-      console.error(error);
-      alert("Something went wrong");
-    }
+    router.push("/atm");
   };
 
   return (
-    <div style={{ marginTop: 10 }}>
+    <div style={{ padding: 20 }}>
       <input
         type="number"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
-        placeholder="Enter amount"
-        style={{ padding: 5, marginRight: 5 }}
+        placeholder="Amount"
+        style={{ padding: 8, marginRight: 10 }}
       />
-      <button onClick={deposit} style={{ padding: 5 }}>Deposit</button>
+      <button onClick={handleDeposit} style={{ padding: "8px 16px" }}>
+        Deposit
+      </button>
     </div>
   );
 }
