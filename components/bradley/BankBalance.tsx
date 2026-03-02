@@ -20,12 +20,17 @@ export default function GetBankBalance() {
 
     return(
         <>
-            <button
-            type="button"
-            onClick={GetCount}
-            >Show bank balance</button>
+            <article>
+            
+                {count? (<p><br/>Total Cash in Bank: ${count}</p>):null}
 
-            {count? (<p><br/>Total Cash in Bank: ${count}</p>):null}
+                <button
+                type="button"
+                onClick={GetCount}
+                >Show bank balance</button>
+            
+            </article>
+
         </>
     )
 }
