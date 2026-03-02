@@ -1,19 +1,9 @@
-import Image from "next/image";
+import GetBankBalance from "@/components/bradley/BankBalance";
 
-export default function Admin2Page() {
-  return (
-    <div style={{display:'flex', margin:10}}>
-    <h1>admin page under construction</h1>
-
-      <div>
-        <Image
-          src="/helmet.png"
-          alt="Next.js logo"
-          width={100}
-          height={100}
-        />
-      </div>
-
-      </div>
-  );
+export default function GetAdminPage(){
+    return(
+        <>
+            <GetBankBalance></GetBankBalance>
+        </>
+    )
 }
