@@ -59,7 +59,7 @@ export default function Deposit() {
         {/* Loop through accounts and show each one */}
         {accounts.map((acc) => (
           <option key={acc.id} value={acc.id}>
-            {acc.name} (${acc.balance})
+            {acc.id}(${acc.balance})
           </option>
         ))}
       </select>
