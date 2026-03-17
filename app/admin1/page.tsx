@@ -8,23 +8,27 @@ export default function Admin1Page() {
   const [refreshKey, setRefreshKey] = useState(0);
 
   return (
-    <main style={{ padding: 20 }}>
-      <h1>Admin Page</h1>
-      <p>Welcome to the Admin landing page.</p>
+    <main className="container">
+      <hgroup>
+        <h1>Admin Page</h1>
+        <p>Welcome to the Admin landing page.</p>
+      </hgroup>
 
-      <div style={{ marginTop: 20 }}>
-        <h2>Total Money</h2>
+      <article>
+        <header>
+          <h2>Total Money</h2>
+        </header>
         <TotalMoney key={refreshKey} />
-      </div>
+      </article>
 
-      <div style={{ marginTop: 20 }}>
-        <h2>Deposit</h2>
-        <Link href="/accounts/1/deposit">
-          <button style={{ padding: "8px 16px" }}>
-            Go to Deposit Page
-          </button>
+      <article>
+        <header>
+          <h2>Deposit</h2>
+        </header>
+        <Link href="/accounts/1/deposit" role="button">
+          Go to Deposit Page
         </Link>
-      </div>
+      </article>
     </main>
   );
 }
