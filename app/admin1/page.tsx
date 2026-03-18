@@ -3,6 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import TotalMoney from "@/components/sheena/TotalMoney";
+import LoginPage from "@/components/sheena/LoginPage";
 
 export default function Admin1Page() {
   const [refreshKey, setRefreshKey] = useState(0);
@@ -28,6 +29,15 @@ export default function Admin1Page() {
         <Link href="/accounts/1/deposit" role="button">
           Go to Deposit Page
         </Link>
+      </article>
+
+      <article>
+        <header>
+          <h2>Login</h2>
+        </header>
+
+        {/*Updated: pass redirect info */}
+        <LoginPage />
       </article>
     </main>
   );
