@@ -3,72 +3,51 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 
-export default function LoginPage() {
-  const [accountId, setAccountId] = useState("");
-  const [password, setPassword] = useState("");
-  const [message, setMessage] = useState("");
-  const [color, setColor] = useState("black");
+export default function LoginPage({ redirectToAdmin }: { redirectToAdmin?: boolean }) {
+  const [accountId, setAccountId] = useState(""); // Store account ID from input
+  const [password, setPassword] = useState(""); // In real app, never store password like this. This is just for demo purposes.
+
   const router = useRouter();
 
   const login = async () => {
-    if (!accountId || !password) {
-      setColor("red");
-      setMessage("Enter account ID and password");
-      return;
-    }
-
     try {
       const res = await fetch(
-        `https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account/${accountId}`
+        `https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account/${accountId}` //fetch account by ID
       );
-      if (!res.ok) throw new Error("Account not found");
 
-      const account = await res.json();
+      if (!res.ok) throw new Error();
 
-      if (password === "password") {
-        setColor("green");
-        setMessage("Login successful! Redirecting...");
-        setTimeout(() => {
-          router.push(`/admin1?id=${account.id}`);
-        }, 800);
-      } else {
-        setColor("red");
-        setMessage("Incorrect password");
+      const account = await res.json(); // In real app, you would verify password securely on the server. This is just a demo check.
+
+      if (password !== "password") {
+        alert("Wrong password");
+        return;
       }
+
+      // Smart redirect logic
+      if (account.role === "admin") { ///if account is admin, go to admin page
+        router.push("/admin");
+      } else {
+        router.push(`/accounts/${accountId}`); //if account is not admin, go to their account page
+      }
+
     } catch {
-      setColor("red");
-      setMessage("Account not found");
+      alert("Account not found");
     }
   };
 
   return (
-    <div className="flex justify-center items-center h-screen bg-gray-100">
-      <div className="bg-white p-6 rounded-2xl shadow-md w-80">
-        <h2 className="text-xl font-semibold mb-4 text-center">Login</h2>
-        <input
-          type="text"
-          placeholder="Account ID"
-          value={accountId}
-          onChange={(e) => setAccountId(e.target.value)}
-          className="w-full p-2 mb-3 border rounded"
-        />
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          className="w-full p-2 mb-3 border rounded"
-        />
-        <button
-          onClick={login}
-          className="w-full bg-blue-500 text-white p-2 rounded hover:bg-blue-600"
-        >
-          Login
-        </button>
-        <p className="mt-3 text-center" style={{ color }}>
-          {message}
-        </p>
-      </div>
+    <div>
+      <input
+        placeholder="Account ID"
+        onChange={(e) => setAccountId(e.target.value)} //update accountId state on input change
+      />
+      <input
+        placeholder="Password"
+        type="password"
+        onChange={(e) => setPassword(e.target.value)} //update password state on input change
+      />
+      <button onClick={login}>Login</button>
     </div>
   );
 }

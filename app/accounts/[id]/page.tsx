@@ -1,41 +1,35 @@
-import Link from "next/link";
+"use client";
 
-interface PageProps {
-  params: { id: string };
-}
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
 
-export default async function Page({ params }: PageProps) {
-  const res = await fetch(
-    `https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account/${params.id}`,
-    { cache: "no-store" }
-  );
+export default function AccountPage() {
+  const { id } = useParams(); //get account ID from URL params
+  const [account, setAccount] = useState<any>(null); //store account data from API
 
-  if (!res.ok) {
-    return <div className="p-6">Account not found</div>;
-  }
+  useEffect(() => {
+    if (!id) return;
 
-  const account = await res.json();
+    const accountId = Array.isArray(id) ? id[0] : id;
+
+    fetch(
+      `https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account/${accountId}` //fetch account by ID
+    )
+      .then((res) => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then((data) => setAccount(data)) //save account data in state
+      .catch(() => console.log("Fetch failed")); //handle fetch errors
+  }, [id]);
+
+  if (!account) return <p>Loading...</p>;
 
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold">Account {params.id}</h1>
-      <p className="text-gray-600">Account dashboard</p>
-
-      <div className="mt-6 text-lg">
-        Balance:{" "}
-        <span className="font-semibold">
-          ${Number(account.balance ?? account.totalMoney ?? 0)}
-        </span>
-      </div>
-
-      <div className="mt-6">
-        <Link
-          href="/admin1"
-          className="inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-        >
-          Back to Admin
-        </Link>
-      </div>
+    <div>
+      <h2>Account Page</h2>
+      <p>ID: {account.id}</p>
+      <p>Balance: {account.balance}</p>
     </div>
   );
 }
