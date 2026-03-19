@@ -30,7 +30,14 @@ export default function Admin1Page() {
           Go to Deposit Page
         </Link>
       </article>
-
+        <article>
+        <header>
+          <h2>Withdraw</h2>
+        </header>
+        <Link href="/accounts/1/withdraw" role="button">
+          Go to Withdraw Page
+        </Link>
+        </article>
       <article>
         <header>
           <h2>Login</h2>
