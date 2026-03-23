@@ -1,67 +1,51 @@
-"use client";
+"use client"; // Marks this as a client-side component in Next.js
+
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function Withdraw() {
-  // List of accounts from API
+  // State to store all accounts fetched from API
   const [accounts, setAccounts] = useState<any[]>([]);
-  // Selected account ID
+
+  // State to store selected account ID
   const [accountId, setAccountId] = useState("");
-  // Withdrawal amount
+
+  // State to store withdrawal amount
   const [amount, setAmount] = useState("");
-  // Router for navigation
+
+  // Next.js router for navigation
   const router = useRouter();
 
-  // Fetch accounts
+  // Fetch accounts when component loads
   useEffect(() => {
     fetch("https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account")
-      .then((res) => res.json())
-      .then((data) => setAccounts(data));
-  }, []);
+      .then((res) => res.json()) // Convert response to JSON
+      .then((data) => setAccounts(data)); // Store accounts in state
+  }, []); // Empty dependency array = runs once on mount
 
-  // Handle withdrawal
-  const handleWithdraw = async () => {
-    // Validate input
-    if (!accountId || Number(amount) <= 0) return;
+  // Function to handle withdrawal action
+  const handleWithdraw = () => {
+    // Validate input: must have account selected and amount > 0
+    if (!accountId || Number(amount) <= 0) {
+      alert("Enter valid details");
+      return;
+    }
 
-    // Get selected account
-    const res = await fetch(
-      `https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account/${accountId}`
+    // Redirect to pending page with query params
+    router.push(
+      `/pending?accountId=${accountId}&amount=${amount}&type=withdraw`
     );
-    const account = await res.json();
-
-    const currentBalance = Number(account.balance);
-    const withdrawAmount = Number(amount);
-
-    // Prevent withdrawal if not enough balance
-    if (withdrawAmount > currentBalance) return;
-
-    // Update balance by subtracting amount
-    await fetch(
-      `https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account/${accountId}`,
-      {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...account,
-          balance: currentBalance - withdrawAmount,
-        }),
-      }
-    );
-
-    // Redirect to account page
-    router.push(`/accounts/${accountId}`);
   };
 
   return (
     <div style={{ padding: 20 }}>
-      {/* Select account */}
-      <select
-        value={accountId}
-        onChange={(e) => setAccountId(e.target.value)}
-        style={{ padding: 8, marginBottom: 10 }}
-      >
+      <h2>Withdraw Funds</h2>
+
+      {/* Dropdown to select account */}
+      <select value={accountId} onChange={(e) => setAccountId(e.target.value)}>
         <option value="">Select Account</option>
+
+        {/* Loop through accounts and create options */}
         {accounts.map((acc) => (
           <option key={acc.id} value={acc.id}>
             {acc.id} (${acc.balance})
@@ -69,21 +53,20 @@ export default function Withdraw() {
         ))}
       </select>
 
-      <br />
+      <br /><br />
 
-      {/* Input withdrawal amount */}
+      {/* Input field for withdrawal amount */}
       <input
         type="number"
         placeholder="Amount"
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
-        style={{ padding: 8, marginRight: 10 }}
       />
 
-      {/* Withdraw button */}
-      <button onClick={handleWithdraw} style={{ padding: "8px 16px" }}>
-        Withdraw
-      </button>
+      <br /><br />
+
+      {/* Button to trigger withdrawal */}
+      <button onClick={handleWithdraw}>Withdraw</button>
     </div>
   );
 }
