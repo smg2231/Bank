@@ -58,7 +58,6 @@ export default function AccountPage() {
   ← Back to Admin
 </Link>
       <h2>Account Page</h2>
-
       {success && (
         <div style={{ color: "green" }}>
           <p>
@@ -69,7 +68,7 @@ export default function AccountPage() {
           {amount && <p>Amount: ${amount}</p>}
         </div>
       )}
-
+      <h2>Account Information</h2>
       <p><strong>ID:</strong> {account.id}</p>
       <p><strong>Balance:</strong> ${account.balance}</p>
 

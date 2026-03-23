@@ -40,9 +40,16 @@ export default function Admin1Page() {
         </article>
       <article>
         <header>
+          <h2>History</h2>
+          </header>
+        <Link href="/accounts/1/history" role="button">
+          Go to History Page
+        </Link>
+        </article>
+      <article>
+        <header>
           <h2>Login</h2>
         </header>
-
         {/*Updated: pass redirect info */}
         <LoginPage />
       </article>

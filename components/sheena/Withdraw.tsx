@@ -6,16 +6,12 @@ import { useRouter } from "next/navigation";
 export default function Withdraw() {
   // State to store all accounts fetched from API
   const [accounts, setAccounts] = useState<any[]>([]);
-
   // State to store selected account ID
   const [accountId, setAccountId] = useState("");
-
   // State to store withdrawal amount
   const [amount, setAmount] = useState("");
-
   // Next.js router for navigation
   const router = useRouter();
-
   // Fetch accounts when component loads
   useEffect(() => {
     fetch("https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account")
@@ -30,13 +26,11 @@ export default function Withdraw() {
       alert("Enter valid details");
       return;
     }
-
     // Redirect to pending page with query params
     router.push(
       `/pending?accountId=${accountId}&amount=${amount}&type=withdraw`
     );
   };
-
   return (
     <div style={{ padding: 20 }}>
       <h2>Withdraw Funds</h2>
@@ -52,9 +46,7 @@ export default function Withdraw() {
           </option>
         ))}
       </select>
-
       <br /><br />
-
       {/* Input field for withdrawal amount */}
       <input
         type="number"
@@ -62,9 +54,7 @@ export default function Withdraw() {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
       />
-
       <br /><br />
-
       {/* Button to trigger withdrawal */}
       <button onClick={handleWithdraw}>Withdraw</button>
     </div>
