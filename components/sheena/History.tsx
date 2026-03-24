@@ -53,6 +53,11 @@ export default function History() {
     loadAllTransactions();
   }, []);
 
+  // Separate transfer transactions
+  const transferTransactions = transactions.filter(
+    (t) => t.type === "transfer"
+  );
+
   return (
     <div style={{ padding: 20 }}>
       <h2>All Transactions</h2>
@@ -73,17 +78,36 @@ export default function History() {
         <p>No transactions found.</p>
       )}
 
-      {/* Transaction list */}
+      {/* Transfer History Section */}
+      {status === "success" && transferTransactions.length > 0 && (
+        <>
+          <h3>Transfer History</h3>
+          <ul>
+            {transferTransactions.map((t, index) => (
+              <li key={index} style={{ marginBottom: "10px" }}>
+                <strong>TRANSFER</strong> — ${t.amount} <br />
+                Account: {t.accountId} <br />
+                Date: {new Date(t.date).toLocaleString()}
+              </li>
+            ))}
+          </ul>
+        </>
+      )}
+
+      {/* Full Transaction list */}
       {status === "success" && transactions.length > 0 && (
-        <ul>
-          {transactions.map((t, index) => (
-            <li key={index} style={{ marginBottom: "10px" }}>
-              <strong>{t.type.toUpperCase()}</strong> — ${t.amount} <br />
-              Account: {t.accountId} <br />
-              Date: {new Date(t.date).toLocaleString()}
-            </li>
-          ))}
-        </ul>
+        <>
+          <h3>All Activity</h3>
+          <ul>
+            {transactions.map((t, index) => (
+              <li key={index} style={{ marginBottom: "10px" }}>
+                <strong>{t.type.toUpperCase()}</strong> — ${t.amount} <br />
+                Account: {t.accountId} <br />
+                Date: {new Date(t.date).toLocaleString()}
+              </li>
+            ))}
+          </ul>
+        </>
       )}
     </div>
   );
