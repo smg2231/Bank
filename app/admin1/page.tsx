@@ -30,12 +30,34 @@ export default function Admin1Page() {
           Go to Deposit Page
         </Link>
       </article>
-
+        <article>
+        <header>
+          <h2>Withdraw</h2>
+        </header>
+        <Link href="/accounts/1/withdraw" role="button">
+          Go to Withdraw Page
+        </Link>
+        </article>
+      <article>
+        <header>
+          <h2>History</h2>
+          </header>
+        <Link href="/accounts/1/history" role="button">
+          Go to History Page
+        </Link>
+        </article>
+        <article>
+        <header>
+          <h2>Transfer</h2>
+          </header>
+        <Link href="/accounts/1/transfer" role="button">
+          Go to Transfer Page
+        </Link>
+        </article>
       <article>
         <header>
           <h2>Login</h2>
         </header>
-
         {/*Updated: pass redirect info */}
         <LoginPage />
       </article>

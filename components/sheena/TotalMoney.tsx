@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Marks this component for client-side rendering in Next.js
 
 import { useEffect, useState } from "react";
 import { db } from "../../app/firebase";
