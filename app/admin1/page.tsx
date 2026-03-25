@@ -46,6 +46,14 @@ export default function Admin1Page() {
           Go to History Page
         </Link>
         </article>
+        <article>
+        <header>
+          <h2>Transfer</h2>
+          </header>
+        <Link href="/accounts/1/transfer" role="button">
+          Go to Transfer Page
+        </Link>
+        </article>
       <article>
         <header>
           <h2>Login</h2>
