@@ -1,4 +1,4 @@
-import Withdraw from "@/components/sheena/Withdraw";
+import Withdraw from "@/components/Withdraw";
 
 export default function Page() {
   return <Withdraw />;

@@ -1,5 +1,8 @@
-import DepositBox from "@/components/sheena/Deposit";
-
+import DepositBox from "@/components/Deposit";
 export default function Page() {
-  return <DepositBox />;
+  return (
+    <>
+      <DepositBox />
+    </>
+  );
 }
