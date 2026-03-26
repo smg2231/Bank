@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import TotalMoney from "@/components/sheena/TotalMoney";
-import LoginPage from "@/components/sheena/LoginPage";
+import TotalMoney from "@/components/TotalMoney";
+import LoginPage from "@/components/LoginPage";
 
 export default function Admin1Page() {
   const [refreshKey, setRefreshKey] = useState(0);
