@@ -1,12 +1,13 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useParams, useSearchParams } from "next/navigation";
+import { useParams, useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 
 export default function AccountPage() {
   const { id } = useParams();
   const searchParams = useSearchParams();
+  const router = useRouter();
 
   const [account, setAccount] = useState<any>(null);
   const [loading, setLoading] = useState(true);
@@ -19,6 +20,23 @@ export default function AccountPage() {
     if (!id) return;
 
     const accountId = Array.isArray(id) ? id[0] : id;
+
+    // Access control: check logged-in account
+    const loggedInAccountId = localStorage.getItem("loggedInAccountId");
+    const role = localStorage.getItem("loggedInRole");
+
+    if (!loggedInAccountId) {
+      alert("Please log in first");
+      router.push("/login"); // redirect to login page
+      return;
+    }
+
+    // Prevent users from accessing other accounts
+    if (role !== "admin" && loggedInAccountId !== accountId) {
+      alert("Access denied!");
+      router.push("/"); // redirect to homepage or login
+      return;
+    }
 
     const fetchAccount = async () => {
       try {
@@ -38,26 +56,30 @@ export default function AccountPage() {
     };
 
     fetchAccount();
-  }, [id]);
+  }, [id, router]);
 
   if (loading) return <p>Loading...</p>;
   if (!account) return <p>Account not found</p>;
 
   return (
     <div style={{ padding: 20 }}>
-      <Link
-  href="/admin1"
-  style={{
-    display: "inline-block",
-    marginBottom: 15,
-    padding: "8px 12px",
-    background: "#eee",
-    textDecoration: "none"
-  }}
->
-  ← Back to Admin
-</Link>
+      {localStorage.getItem("loggedInRole") === "admin" && (
+        <Link
+          href="/admin1"
+          style={{
+            display: "inline-block",
+            marginBottom: 15,
+            padding: "8px 12px",
+            background: "#eee",
+            textDecoration: "none",
+          }}
+        >
+          ← Back to Admin
+        </Link>
+      )}
+
       <h2>Account Page</h2>
+
       {success && (
         <div style={{ color: "green" }}>
           <p>
@@ -68,9 +90,14 @@ export default function AccountPage() {
           {amount && <p>Amount: ${amount}</p>}
         </div>
       )}
+
       <h2>Account Information</h2>
-      <p><strong>ID:</strong> {account.id}</p>
-      <p><strong>Balance:</strong> ${account.balance}</p>
+      <p>
+        <strong>ID:</strong> {account.id}
+      </p>
+      <p>
+        <strong>Balance:</strong> ${account.balance}
+      </p>
 
       <h3 style={{ marginTop: 20 }}>Transaction History</h3>
 
@@ -88,9 +115,7 @@ export default function AccountPage() {
         </ul>
       ) : (
         <p>No transactions yet.</p>
-        
       )}
-      
     </div>
   );
 }
