@@ -1,0 +1,60 @@
+/* Prevent scrolling but keep layout features */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden; /* prevents scroll */
+}
+
+/* Homepage container fills the screen */
+.homepage {
+  height: 100vh; /* full viewport height */
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #020617;
+  color: white;
+
+  /* Use Geist Sans font */
+  font-family: var(--geist-sans), sans-serif;
+
+  /* Spacing inside container */
+  gap: 1rem;
+  padding: 2rem;
+}
+
+/* Tagline text */
+.tagline p:first-child {
+  color: #bfdbfe;
+  font-size: 1.5rem;
+  font-weight: 700;
+}
+
+.tagline p:last-child {
+  color: #93c5fd;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+
+/* Login button styling */
+.btn {
+  display: inline-block;
+  padding: 0.8rem 1.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 0.75rem;
+  border: none;
+  background-color: #7c3aed;
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn:hover {
+  background-color: #6d28d9;
+  transform: translateY(-2px);
+}

@@ -1,10 +1,10 @@
-import LoginPage from "@/components/LoginPage";
-import Image from "next/image";
+import LoginPage from '@/components/LoginPage';
+import Image from 'next/image';
 
 export default function Home() {
   return (
-    <div className="min-h-screen w-full flex flex-col items-center justify-center font-sans text-center">
-      {/* Logo front and center */}
+    <div className="homepage">
+
       <div className="mb-8">
         <Image
           src="/plush.png"
@@ -12,22 +12,19 @@ export default function Home() {
           width={320}
           height={320}
           className="rounded-full"
-          priority
         />
       </div>
 
-      {/* Tagline / content */}
-      <div className="flex flex-col gap-2">
+      <div className="tagline">
         <p>Secure. Reliable. Simple.</p>
         <p>Join us today!</p>
       </div>
-       <article>
-              <header>
-                <h2>Login</h2>
-              </header>
-              {/*Updated: pass redirect info */}
-              <LoginPage />
-            </article>
+
+      <div className = "mt-8">
+        <a href="/login" className="btn">
+          <LoginPage />
+        </a>
+      </div>
     </div>
   );
 }
