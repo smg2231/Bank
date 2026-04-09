@@ -1,8 +1,5 @@
-import DepositBox from "@/components/Deposit";
-export default function Page() {
-  return (
-    <>
-      <DepositBox />
-    </>
-  );
+import TellerFunc from "@/components/TellerFunc";
+
+export default function DepositPage() {
+  return <TellerFunc type="deposit" />;
 }

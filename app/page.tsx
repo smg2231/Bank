@@ -1,5 +1,5 @@
-import LoginPage from '@/components/LoginPage';
-import Image from 'next/image';
+import LoginPage from "@/components/LogFunc";
+import Image from "next/image";
 
 export default function Home() {
   return (
@@ -20,11 +20,11 @@ export default function Home() {
         <p>Join us today!</p>
       </div>
 
-      <div className = "mt-8">
-        <a href="/login" className="btn">
-          <LoginPage />
-        </a>
+      <div className="mt-8">
+        {/* login form is directly rendered */}
+        <LoginPage />
       </div>
+
     </div>
   );
 }
