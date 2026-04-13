@@ -1,5 +1,4 @@
-import Withdraw from "@/components/Withdraw";
-
-export default function Page() {
-  return <Withdraw />;
+import TellerFunc from "@/components/TellerFunc";
+export default function WithdrawPage() {
+  return <TellerFunc type="withdraw" />;
 }

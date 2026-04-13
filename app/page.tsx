@@ -25,6 +25,7 @@ export default function Home() {
           <Login />
         </a>
       </div>
+
     </div>
   );
 }

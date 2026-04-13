@@ -4,11 +4,9 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 export default function History() {
-  const router = useRouter();
+  const router = useRouter(); // navigation
 
-  const [status, setStatus] = useState<"processing" | "success" | "error">(
-    "processing"
-  );
+  const [status, setStatus] = useState<"processing" | "success" | "error">("processing");
   const [message, setMessage] = useState("");
   const [transactions, setTransactions] = useState<any[]>([]);
 
@@ -27,7 +25,7 @@ export default function History() {
 
         const accounts = await res.json();
 
-        // Combine all transactions from all accounts
+        // combine transactions
         const allTransactions = accounts.flatMap((account: any) =>
           (account.transactions || []).map((t: any) => ({
             ...t,
@@ -35,7 +33,7 @@ export default function History() {
           }))
         );
 
-        // Sort newest first
+        // sort newest first
         allTransactions.sort(
           (a: any, b: any) =>
             new Date(b.date).getTime() - new Date(a.date).getTime()
@@ -53,19 +51,22 @@ export default function History() {
     loadAllTransactions();
   }, []);
 
-  // Separate transfer transactions
+  // filter transfers
   const transferTransactions = transactions.filter(
-    (t) => t.type === "transfer"
+    (t) =>
+      t.type === "transfer" ||
+      t.type === "transfer-in" ||
+      t.type === "transfer-out"
   );
 
   return (
     <div style={{ padding: 20 }}>
       <h2>All Transactions</h2>
 
-      {/* Loading */}
+      {/* loading */}
       {status === "processing" && <p>Loading...</p>}
 
-      {/* Error */}
+      {/* error */}
       {status === "error" && (
         <>
           <p>{message}</p>
@@ -73,40 +74,44 @@ export default function History() {
         </>
       )}
 
-      {/* No transactions */}
+      {/* empty */}
       {status === "success" && transactions.length === 0 && (
         <p>No transactions found.</p>
       )}
 
-      {/* Transfer History Section */}
+      {/* transfer history with scroll */}
       {status === "success" && transferTransactions.length > 0 && (
         <>
           <h3>Transfer History</h3>
-          <ul>
-            {transferTransactions.map((t, index) => (
-              <li key={index} style={{ marginBottom: "10px" }}>
-                <strong>TRANSFER</strong> — ${t.amount} <br />
-                Account: {t.accountId} <br />
-                Date: {new Date(t.date).toLocaleString()}
-              </li>
-            ))}
-          </ul>
+          <div style={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #ccc", padding: "10px" }}>
+            <ul>
+              {transferTransactions.map((t, index) => (
+                <li key={index} style={{ marginBottom: "10px" }}>
+                  <strong>{t.type.toUpperCase()}</strong> — ${t.amount} <br />
+                  Account: {t.accountId} <br />
+                  Date: {new Date(t.date).toLocaleString()}
+                </li>
+              ))}
+            </ul>
+          </div>
         </>
       )}
 
-      {/* Full Transaction list */}
+      {/* all activity with scroll */}
       {status === "success" && transactions.length > 0 && (
         <>
           <h3>All Activity</h3>
-          <ul>
-            {transactions.map((t, index) => (
-              <li key={index} style={{ marginBottom: "10px" }}>
-                <strong>{t.type.toUpperCase()}</strong> — ${t.amount} <br />
-                Account: {t.accountId} <br />
-                Date: {new Date(t.date).toLocaleString()}
-              </li>
-            ))}
-          </ul>
+          <div style={{ maxHeight: "300px", overflowY: "auto", border: "1px solid #ccc", padding: "10px" }}>
+            <ul>
+              {transactions.map((t, index) => (
+                <li key={index} style={{ marginBottom: "10px" }}>
+                  <strong>{t.type.toUpperCase()}</strong> — ${t.amount} <br />
+                  Account: {t.accountId} <br />
+                  Date: {new Date(t.date).toLocaleString()}
+                </li>
+              ))}
+            </ul>
+          </div>
         </>
       )}
     </div>

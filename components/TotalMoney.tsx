@@ -1,37 +1,47 @@
-"use client"; // Marks this component for client-side rendering in Next.js
+"use client"; // client-side component
 
 import { useEffect, useState } from "react";
 import { db } from "../app/firebase";
 import { collection, getDocs } from "firebase/firestore";
 
 export default function TotalMoney() {
-  const [total, setTotal] = useState<number>(0);
-  const [account, setAccount] = useState<any[]>([]);
+  const [total, setTotal] = useState<number>(0); // total balance
 
   useEffect(() => {
-    const fetchAccount = async (): Promise<void> => {
+    const fetchAccounts = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, "Accounts"));
-        const accountList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setAccount(accountList);
+        // fetch all accounts from API
+        const res = await fetch(
+          "https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account"
+        );
 
-        // Calculate total here after fetching
-        let sum = 0;
-        for (let i = 0; i < accountList.length; i++) {
-          sum += Number(accountList[i].balance || 0);
+        if (!res.ok) {
+          setTotal(0);
+          return;
         }
+
+        const accounts = await res.json();
+
+        // calculate total balance
+        const sum = accounts.reduce(
+          (acc: number, account: any) =>
+            acc + Number(account.balance || 0),
+          0
+        );
+
         setTotal(sum);
       } catch (err) {
-        console.log(err);
+        console.error(err);
         setTotal(0);
       }
     };
 
-    fetchAccount();
+    fetchAccounts();
   }, []);
 
-  return <div style={{ fontSize: 20, marginTop: 5 }}>Total Money: ${total}</div>;
+  return (
+    <div style={{ fontSize: 20, marginTop: 5 }}>
+      Total Money: ${total}
+    </div>
+  );
 }
