@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import TotalMoney from "@/components/TotalMoney";
-import LoginPage from "@/components/LoginPage";
+import LoginPage from "@/components/Login";
 
 export default function Admin1Page() {
   const router = useRouter();

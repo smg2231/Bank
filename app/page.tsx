@@ -1,4 +1,4 @@
-import LoginPage from '@/components/LoginPage';
+import Login from '@/components/Login';
 import Image from 'next/image';
 
 export default function Home() {
@@ -21,8 +21,8 @@ export default function Home() {
       </div>
 
       <div className = "mt-8">
-        <a href="/login" className="btn">
-          <LoginPage />
+        <a className="btn">
+          <Login />
         </a>
       </div>
     </div>
