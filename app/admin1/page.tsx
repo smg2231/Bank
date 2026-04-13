@@ -2,8 +2,7 @@
 
 import { useEffect, useState } from "react";
 import TotalMoney from "@/components/TotalMoney";
-import TellerFunc from "@/components/TellerFunc";
-import History from "@/components/History";
+import LoginPage from "@/components/Login";
 
 export default function Admin1Page() {
   const [loggedInAccountId, setLoggedInAccountId] = useState<string | null>(null);

@@ -1,6 +1,8 @@
 "use client"; // client-side component
 
 import { useEffect, useState } from "react";
+import { db } from "../app/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 export default function TotalMoney() {
   const [total, setTotal] = useState<number>(0); // total balance
