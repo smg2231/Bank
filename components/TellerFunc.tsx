@@ -1,7 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { db } from "../app/firebase";
+import { collection, getDocs, doc, updateDoc } from "firebase/firestore";
 import { useRouter } from "next/navigation";
+import { increment } from "firebase/firestore";
 
 type Props = {
   type: "deposit" | "withdraw" | "transfer";
@@ -10,19 +13,24 @@ type Props = {
 export default function TellerFunc({ type }: Props) {
   const [accounts, setAccounts] = useState<any[]>([]); // All accounts
   const [selected, setSelected] = useState({ from: "", to: "" }); // From/To
-  const [amount, setAmount] = useState(""); // Amount
+  const [amount, setAmount] = useState(Number); // Amount
 
   const router = useRouter();
 
   // Fetch accounts on load
   useEffect(() => {
-    fetch("https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account")
-      .then((res) => res.json())
-      .then(setAccounts)
-      .catch(console.error);
+    const fetchAccount = async():Promise<void> =>{
+      const querySnapshot = await getDocs(collection(db, "Accounts"));
+      const accountList = querySnapshot.docs.map(doc => ({
+        id: doc.id,
+        ...doc.data()
+      }));
+      setAccounts(accountList)
+    }
+    fetchAccount()
   }, []);
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     // Validate amount
     if (Number(amount) <= 0) {
       alert("Enter valid amount");
@@ -39,9 +47,13 @@ export default function TellerFunc({ type }: Props) {
         alert("Cannot transfer to same account");
         return;
       }
-      router.push(
-        `/pending?from=${selected.from}&to=${selected.to}&amount=${amount}&type=transfer`
-      );
+
+      let userRef = doc(db, "Accounts", selected.to)
+      await updateDoc(userRef, { balance: increment(amount) });
+
+      userRef = doc(db, "Accounts", selected.from)
+      await updateDoc(userRef, { balance: increment(-(amount)) });
+
       return;
     }
 
@@ -50,9 +62,14 @@ export default function TellerFunc({ type }: Props) {
       alert("Select account");
       return;
     }
-    router.push(
-      `/pending?accountId=${selected.from}&amount=${amount}&type=${type}`
-    );
+
+    let userRef = doc(db, "Accounts", selected.from)
+
+    if (type === "deposit") {
+      await updateDoc(userRef, { balance: increment(amount) });
+    } else if (type === "withdraw") {
+      await updateDoc(userRef, { balance: increment(-(amount)) });
+    }
   };
 
   return (
@@ -66,6 +83,7 @@ export default function TellerFunc({ type }: Props) {
       </h2>
 
       {/* Account selection */}
+      
       {type === "transfer" ? (
         <>
           <label>From:</label>
@@ -116,7 +134,7 @@ export default function TellerFunc({ type }: Props) {
         type="number"
         placeholder="Amount"
         value={amount}
-        onChange={(e) => setAmount(e.target.value)}
+        onChange={(e) => setAmount(Number(e.target.value))}
       />
       <br /><br />
       {/* Submit button */}
