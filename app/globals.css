@@ -3,13 +3,14 @@ html, body {
   margin: 0;
   padding: 0;
   height: 100%;
-  overflow: hidden; /* prevents scroll */
+  overflow: hidden;
 }
 
 /* Homepage container fills the screen */
 .homepage {
-  height: 100vh; /* full viewport height */
+  height: 100vh;
   width: 100%;
+  box-sizing: border-box; /* prevents right shift */
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -18,10 +19,8 @@ html, body {
   background-color: #020617;
   color: white;
 
-  /* Use Geist Sans font */
   font-family: var(--geist-sans), sans-serif;
 
-  /* Spacing inside container */
   gap: 1rem;
   padding: 2rem;
 }
@@ -39,22 +38,38 @@ html, body {
   font-weight: 400;
 }
 
-/* Login button styling */
-.btn {
-  display: inline-block;
-  padding: 0.8rem 1.5rem;
+/* Login form */
+.login-form {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  max-width: 260px;
+}
+
+.login-form input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  border: none;
+  outline: none;
+}
+
+.login-form button {
+  width: 100%;
+  padding: 0.8rem;
   font-size: 1.1rem;
   font-weight: 600;
   border-radius: 0.75rem;
   border: none;
   background-color: #7c3aed;
   color: white;
-  text-decoration: none;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
-.btn:hover {
+.login-form button:hover {
   background-color: #6d28d9;
   transform: translateY(-2px);
 }

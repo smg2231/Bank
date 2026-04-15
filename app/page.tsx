@@ -5,27 +5,19 @@ export default function Home() {
   return (
     <div className="homepage">
 
-      <div className="mb-8">
-        <Image
-          src="/plush.png"
-          alt="Logo"
-          width={320}
-          height={320}
-          className="rounded-full"
-        />
-      </div>
+      <Image
+        src="/plush.png"
+        alt="Logo"
+        width={350}
+        height={350}
+        className="rounded-full"
+      />
 
       <div className="tagline">
         <p>Secure. Reliable. Simple.</p>
         <p>Join us today!</p>
       </div>
-
-      <div className = "mt-8">
-        <a className="btn">
-          <Login />
-        </a>
-      </div>
-
+      <Login />
     </div>
   );
 }
