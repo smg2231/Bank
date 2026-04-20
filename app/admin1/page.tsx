@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import TotalMoney from "@/components/TotalMoney";
 import TellerFunc from "@/components/TellerFunc";
-
+import "../../styles/admin.css";
 export default function Admin1Page() {
   const [loggedInAccountId, setLoggedInAccountId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -29,7 +29,7 @@ export default function Admin1Page() {
   const actions = [
     { title: "Deposit", type: "deposit" },
     { title: "Withdraw", type: "withdraw" },
-    { title: "Transfer", type: "transfer" }, // added transfer
+    { title: "Transfer", type: "transfer" },
     { title: "History", type: "history" },
     { title: "Logout", type: "logout" },
   ];
@@ -44,68 +44,42 @@ export default function Admin1Page() {
   };
 
   return (
-    <main style={{ display: "flex", minHeight: "100vh", overflow: "hidden" }}>
+    <main className="admin-container">
       {/* Sidebar */}
-      <aside
-        style={{
-          width: "200px",
-          borderRight: "1px solid #ccc",
-          padding: "20px",
-          boxSizing: "border-box",
-        }}
-      >
+      <aside className="admin-sidebar">
         <h2>Actions</h2>
-        {actions.map((action) =>
-          action.type === "logout" ? (
-            <button
-              key={action.type}
-              onClick={handleLogout}
-              style={{
-                display: "block",
-                width: "100%",
-                marginBottom: "10px",
-                padding: "10px",
-                cursor: "pointer",
-              }}
-            >
-              {action.title}
-            </button>
-          ) : (
-            <button
-              key={action.type}
-              onClick={() => setActiveComponent(action.type)}
-              style={{
-                display: "block",
-                width: "100%",
-                marginBottom: "10px",
-                padding: "10px",
-                cursor: "pointer",
-              }}
-            >
-              {action.title}
-            </button>
-          )
-        )}
 
-        <div style={{ marginTop: "20px" }}>
+        {actions.map((action) => {
+          const isActive = activeComponent === action.type;
+
+          return (
+            <button
+              key={action.type}
+              onClick={
+                action.type === "logout"
+                  ? handleLogout
+                  : () => setActiveComponent(action.type)
+              }
+              className={`admin-button ${
+                isActive ? "active" : ""
+              } ${action.type === "logout" ? "logout" : ""}`}
+            >
+              {action.title}
+            </button>
+          );
+        })}
+
+        <div className="admin-total">
           <h3>Total Money</h3>
           <TotalMoney />
         </div>
       </aside>
 
-      {/* Scrollable main content */}
-      <section
-        style={{
-          flex: 1,
-          overflowY: "auto",
-          padding: "20px",
-          boxSizing: "border-box",
-        }}
-      >
+      {/* Main content */}
+      <section className="admin-content">
         <h1>Admin Dashboard</h1>
         <p>Welcome, admin1!</p>
 
-        {/* Active component display */}
         {activeComponent === "deposit" && <TellerFunc type="deposit" />}
         {activeComponent === "withdraw" && <TellerFunc type="withdraw" />}
         {activeComponent === "transfer" && <TellerFunc type="transfer" />}
