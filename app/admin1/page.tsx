@@ -12,7 +12,6 @@ export default function Admin1Page() {
   useEffect(() => {
     const accountId = localStorage.getItem("loggedInAccountId");
     const userRole = localStorage.getItem("loggedInRole");
-
     setLoggedInAccountId(accountId);
 
     if (userRole !== "admin" || accountId !== "admin1") {
@@ -47,7 +46,7 @@ export default function Admin1Page() {
     <main className="admin-container">
       {/* Sidebar */}
       <aside className="admin-sidebar">
-        <h2>Actions</h2>
+        <h2 className="admin-text">Actions</h2>
 
         {actions.map((action) => {
           const isActive = activeComponent === action.type;
@@ -69,15 +68,14 @@ export default function Admin1Page() {
           );
         })}
 
-        <div className="admin-total">
-          <h3>Total Money</h3>
+        <div className="admin-text">
           <TotalMoney />
         </div>
       </aside>
 
       {/* Main content */}
       <section className="admin-content">
-        <h1>Admin Dashboard</h1>
+        <h1 className="admin-text">Admin Dashboard</h1>
         <p>Welcome, admin1!</p>
 
         {activeComponent === "deposit" && <TellerFunc type="deposit" />}

@@ -139,7 +139,8 @@ export default function TellerFunc({ type }: Props) {
 
       {/* Amount */}
       <label className="teller-label">Amount:</label>
-      <input
+      {/* in line style */}
+      <input style={{ width: "96%" }}
         className="teller-input"
         type="number"
         placeholder="Enter amount"
