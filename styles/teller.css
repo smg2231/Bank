@@ -1,0 +1,68 @@
+/* ===== Teller Container (card style) ===== */
+.teller-container {
+  max-width: 500px;
+  margin-top: 20px;
+  padding: 25px;
+
+  background: rgba(15, 23, 42, 0.8);
+  border-radius: 16px;
+
+  backdrop-filter: blur(10px);
+}
+
+/* Title */
+.teller-container h2 {
+  margin-bottom: 20px;
+}
+
+/* Labels */
+.teller-label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+/* Inputs & Selects */
+.teller-input,
+.teller-select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 15px;
+
+  border-radius: 10px;
+  border: none;
+  outline: none;
+
+  background: #1e293b;
+  color: white;
+}
+
+/* Placeholder color */
+.teller-input::placeholder {
+  color: #94a3b8;
+}
+
+/* ===== Button (same purple bubble style) ===== */
+.teller-button {
+  width: 100%;
+  padding: 12px;
+
+  border: none;
+  border-radius: 999px;
+
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: white;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+}
+
+.teller-button:hover {
+  transform: translateY(-2px) scale(1.02);
+}
+
+.teller-button:active {
+  transform: scale(0.96);
+}

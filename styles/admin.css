@@ -1,0 +1,79 @@
+/* ===== Admin Layout ===== */
+.admin-container {
+  display: flex;
+  min-height: 100vh;
+  background-color: #020617; /* same dark navy */
+  color: white;
+  font-family: var(--geist-sans), sans-serif;
+}
+
+/* ===== Sidebar ===== */
+.admin-sidebar {
+  width: 220px;
+  padding: 20px;
+  border-right: 1px solid #1e293b;
+  box-sizing: border-box;
+}
+
+.admin-sidebar h2 {
+  margin-bottom: 15px;
+}
+
+/* ===== Buttons (Purple Bubble Style) ===== */
+.admin-button {
+  display: block;
+  width: 100%;
+  margin-bottom: 12px;
+  padding: 10px;
+
+  border: none;
+  border-radius: 999px; /* bubble shape */
+
+  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  color: white;
+  font-weight: 600;
+
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+}
+
+/* Hover effect */
+.admin-button:hover {
+  transform: translateY(-2px) scale(1.03);
+}
+
+/* Active (selected) button */
+.admin-button.active {
+  background: linear-gradient(135deg, #a78bfa, #7c3aed);
+  transform: scale(0.96);
+
+}
+
+/* Logout button (red bubble) */
+.admin-button.logout {
+  background: linear-gradient(135deg, #ef4444, #dc2626);
+}
+
+/* ===== Total Money Section ===== */
+.admin-text {
+  margin-top: 25px;
+  color: rgb(161, 161, 255);
+  text-align: center;
+}
+
+/* ===== Main Content ===== */
+.admin-content {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+}
+
+/* Optional: make content feel like a panel */
+.admin-content h1 {
+  margin-bottom: 10px;
+}
+
+.admin-content p {
+  color: #cbd5f5;
+}
