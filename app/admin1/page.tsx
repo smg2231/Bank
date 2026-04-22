@@ -68,7 +68,8 @@ export default function Admin1Page() {
           );
         })}
 
-        <div className="admin-text">
+        <br></br>
+        <div style={{textAlign: "center"}}>
           <TotalMoney />
         </div>
       </aside>
