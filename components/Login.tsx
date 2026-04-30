@@ -14,38 +14,42 @@ export default function Login() {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchAccount = async (): Promise<void> => {
-      const querySnapshot = await getDocs(collection(db, "Passwords"));
+    const fetchAccount = async () => {
+      const querySnapshot = await getDocs(collection(db, "Users")); // ✅ FIXED HERE
+
       const accountList = querySnapshot.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
+
       setAccount(accountList);
     };
+
     fetchAccount();
   }, []);
 
-  // animation control
   useEffect(() => {
-    if (open) {
-      setVisible(true);
-    } else {
-      setTimeout(() => setVisible(false), 200);
-    }
+    if (open) setVisible(true);
+    else setTimeout(() => setVisible(false), 200);
   }, [open]);
 
   function loginbutton() {
     for (let i = 0; i < account.length; i++) {
+      const acc = account[i];
+
       if (
-        userID === account[i].username &&
-        password === account[i].password
+        userID === acc.userId &&   // MUST MATCH Firestore field
+        password === acc.password
       ) {
-        localStorage.setItem("loggedInAccountId", userID);
-        localStorage.setItem("loggedInRole", "admin");
+        localStorage.setItem("loggedInAccountId", acc.userId);
+        localStorage.setItem("loggedInRole", acc.role || "admin");
+
         router.push("/admin1");
         return;
       }
     }
+
+    alert("Invalid login");
   }
 
   return (

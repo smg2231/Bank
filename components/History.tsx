@@ -2,42 +2,35 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { db } from "../app/firebase";
+import { collection, getDocs } from "firebase/firestore";
 
 export default function History() {
-  const router = useRouter(); // navigation
+  const router = useRouter();
 
-  const [status, setStatus] = useState<"processing" | "success" | "error">("processing");
+  const [status, setStatus] = useState<
+    "processing" | "success" | "error"
+  >("processing");
+
   const [message, setMessage] = useState("");
   const [transactions, setTransactions] = useState<any[]>([]);
 
   useEffect(() => {
     const loadAllTransactions = async () => {
       try {
-        const res = await fetch(
-          "https://695f03af7f037703a8128fbf.mockapi.io/api/v1/Account"
-        );
+        const snap = await getDocs(collection(db, "transcactions"));
 
-        if (!res.ok) {
-          setStatus("error");
-          setMessage("Failed to fetch accounts.");
-          return;
-        }
-
-        const accounts = await res.json();
-
-        // combine transactions
-        const allTransactions = accounts.flatMap((account: any) =>
-          (account.transactions || []).map((t: any) => ({
-            ...t,
-            accountId: account.id,
-          }))
-        );
+        const allTransactions = snap.docs.map((doc) => ({
+          id: doc.id,
+          ...doc.data(),
+        }));
 
         // sort newest first
-        allTransactions.sort(
-          (a: any, b: any) =>
-            new Date(b.date).getTime() - new Date(a.date).getTime()
-        );
+        allTransactions.sort((a: any, b: any) => {
+          const aDate = a.date?.seconds ? a.date.seconds * 1000 : a.date;
+          const bDate = b.date?.seconds ? b.date.seconds * 1000 : b.date;
+          return new Date(bDate).getTime() - new Date(aDate).getTime();
+        });
 
         setTransactions(allTransactions);
         setStatus("success");
@@ -51,22 +44,35 @@ export default function History() {
     loadAllTransactions();
   }, []);
 
-  // filter transfers
+  // ✅ FIXED TRANSFER FILTER
   const transferTransactions = transactions.filter(
     (t) =>
-      t.type === "transfer" ||
       t.type === "transfer-in" ||
       t.type === "transfer-out"
   );
+
+  // ✅ CLEAN LABELS
+  const formatType = (type: string) => {
+    switch (type) {
+      case "transfer-in":
+        return "Transfer In";
+      case "transfer-out":
+        return "Transfer Out";
+      case "deposit":
+        return "Deposit";
+      case "withdrawal":
+        return "Withdrawal";
+      default:
+        return type;
+    }
+  };
 
   return (
     <div style={{ padding: 20 }}>
       <h2>All Transactions</h2>
 
-      {/* loading */}
       {status === "processing" && <p>Loading...</p>}
 
-      {/* error */}
       {status === "error" && (
         <>
           <p>{message}</p>
@@ -74,22 +80,31 @@ export default function History() {
         </>
       )}
 
-      {/* empty */}
       {status === "success" && transactions.length === 0 && (
         <p>No transactions found.</p>
       )}
 
-      {/* transfer history with scroll */}
+      {/* ===== TRANSFERS ===== */}
       {status === "success" && transferTransactions.length > 0 && (
         <>
           <h3>Transfer History</h3>
-          <div style={{ maxHeight: "200px", overflowY: "auto", border: "1px solid #ccc", padding: "10px" }}>
+          <div
+            style={{
+              maxHeight: "200px",
+              overflowY: "auto",
+              border: "1px solid #ccc",
+              padding: "10px",
+            }}
+          >
             <ul>
-              {transferTransactions.map((t, index) => (
-                <li key={index} style={{ marginBottom: "10px" }}>
-                  <strong>{t.type.toUpperCase()}</strong> — ${t.amount} <br />
+              {transferTransactions.map((t) => (
+                <li key={t.id} style={{ marginBottom: "10px" }}>
+                  <strong>{formatType(t.type)}</strong> — ${t.amount} <br />
                   Account: {t.accountId} <br />
-                  Date: {new Date(t.date).toLocaleString()}
+                  Date:{" "}
+                  {new Date(
+                    t.date?.seconds ? t.date.seconds * 1000 : t.date
+                  ).toLocaleString()}
                 </li>
               ))}
             </ul>
@@ -97,17 +112,27 @@ export default function History() {
         </>
       )}
 
-      {/* all activity with scroll */}
+      {/* ===== ALL ACTIVITY ===== */}
       {status === "success" && transactions.length > 0 && (
         <>
           <h3>All Activity</h3>
-          <div style={{ maxHeight: "300px", overflowY: "auto", border: "1px solid #ccc", padding: "10px" }}>
+          <div
+            style={{
+              maxHeight: "300px",
+              overflowY: "auto",
+              border: "1px solid #ccc",
+              padding: "10px",
+            }}
+          >
             <ul>
-              {transactions.map((t, index) => (
-                <li key={index} style={{ marginBottom: "10px" }}>
-                  <strong>{t.type.toUpperCase()}</strong> — ${t.amount} <br />
+              {transactions.map((t) => (
+                <li key={t.id} style={{ marginBottom: "10px" }}>
+                  <strong>{formatType(t.type)}</strong> — ${t.amount} <br />
                   Account: {t.accountId} <br />
-                  Date: {new Date(t.date).toLocaleString()}
+                  Date:{" "}
+                  {new Date(
+                    t.date?.seconds ? t.date.seconds * 1000 : t.date
+                  ).toLocaleString()}
                 </li>
               ))}
             </ul>

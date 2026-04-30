@@ -1,0 +1,26 @@
+/* history.css */
+
+/* full page scroll */
+.history-container {
+  padding: 20px;
+  height: 100vh;          /* fill screen */
+  overflow-y: auto;       /* main scroll */
+  box-sizing: border-box; /* prevent overflow issues */
+}
+
+/* remove inner scrolling */
+.history-scroll-box {
+  border: 1px solid #ccc;
+  padding: 10px;
+}
+
+/* search input spacing */
+.history-search {
+  width: 96%;
+  margin-bottom: 15px;
+}
+
+/* list item spacing */
+.history-item {
+  margin-bottom: 10px;
+}

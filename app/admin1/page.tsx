@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import TotalMoney from "@/components/TotalMoney";
 import TellerFunc from "@/components/TellerFunc";
 import "../../styles/admin.css";
+
 export default function Admin1Page() {
   const [loggedInAccountId, setLoggedInAccountId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
@@ -12,9 +13,10 @@ export default function Admin1Page() {
   useEffect(() => {
     const accountId = localStorage.getItem("loggedInAccountId");
     const userRole = localStorage.getItem("loggedInRole");
+
     setLoggedInAccountId(accountId);
 
-    if (userRole !== "admin" || accountId !== "admin1") {
+    if (!accountId || userRole !== "admin") {
       alert("Access denied!");
       window.location.href = "/";
       return;
@@ -36,15 +38,11 @@ export default function Admin1Page() {
   const handleLogout = () => {
     localStorage.removeItem("loggedInAccountId");
     localStorage.removeItem("loggedInRole");
-    setActiveComponent("logout");
-    setTimeout(() => {
-      window.location.href = "/";
-    }, 1000);
+    window.location.href = "/";
   };
 
   return (
     <main className="admin-container">
-      {/* Sidebar */}
       <aside className="admin-sidebar">
         <h2 className="admin-text">Actions</h2>
 
@@ -59,30 +57,28 @@ export default function Admin1Page() {
                   ? handleLogout
                   : () => setActiveComponent(action.type)
               }
-              className={`admin-button ${
-                isActive ? "active" : ""
-              } ${action.type === "logout" ? "logout" : ""}`}
+              className={`admin-button ${isActive ? "active" : ""} ${
+                action.type === "logout" ? "logout" : ""
+              }`}
             >
               {action.title}
             </button>
           );
         })}
 
-        <br></br>
-        <div style={{textAlign: "center"}}>
+        <div style={{ textAlign: "center" }}>
           <TotalMoney />
         </div>
       </aside>
 
-      {/* Main content */}
       <section className="admin-content">
         <h1 className="admin-text">Admin Dashboard</h1>
-        <p>Welcome, admin1!</p>
+        <p>Welcome, {loggedInAccountId}</p>
 
         {activeComponent === "deposit" && <TellerFunc type="deposit" />}
         {activeComponent === "withdraw" && <TellerFunc type="withdraw" />}
         {activeComponent === "transfer" && <TellerFunc type="transfer" />}
-        {/*activeComponent === "history" && <History />*/}
+        {activeComponent === "history" && <TellerFunc type="history" />}
         {activeComponent === "logout" && <p>Logging out...</p>}
       </section>
     </main>
