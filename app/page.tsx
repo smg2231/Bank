@@ -5,25 +5,27 @@ export default function Home() {
     <div className="homepage">
 
       {/* LEFT IMAGE */}
-      <Image
-        src="/OnlineB.jpg"
-        alt="Left Image"
-        width={300}
-        height={440}
-        className="left-image"
-        priority
-      />
+     <div className="image-wrapper left-wrapper">
+  <Image
+    src="/OnlineB.jpg"
+    alt="Left Image"
+    width={300}
+    height={440}
+    className="left-image"
+    priority
+  />
+</div>
 
-      {/* RIGHT IMAGE */}
-      <Image
-        src="/OnlinePay.jpg"
-        alt="Right Image"
-        width={300}
-        height={440}
-        className="right-image"
-        priority
-      />
-
+<div className="image-wrapper right-wrapper">
+  <Image
+    src="/OnlinePay.jpg"
+    alt="Right Image"
+    width={300}
+    height={440}
+    className="right-image"
+    priority
+  />
+</div>
       {/* CENTER LOGO */}
      <div className="logo-wrapper">
   <Image
@@ -40,7 +42,6 @@ export default function Home() {
         <p>Secure. Reliable. Simple.</p>
         <p>Join us today!</p>
       </div>
-
     </div>
   );
 }

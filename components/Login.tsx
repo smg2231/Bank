@@ -3,53 +3,61 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "../app/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { doc, getDoc } from "firebase/firestore";
 
 export default function Login() {
-  const [account, setAccount] = useState<any[]>([]);
   const [userID, setUserID] = useState("");
   const [password, setPassword] = useState("");
+
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
+
   const router = useRouter();
-
-  useEffect(() => {
-    const fetchAccount = async () => {
-      const querySnapshot = await getDocs(collection(db, "Users")); // ✅ FIXED HERE
-
-      const accountList = querySnapshot.docs.map((doc) => ({
-        id: doc.id,
-        ...doc.data(),
-      }));
-
-      setAccount(accountList);
-    };
-
-    fetchAccount();
-  }, []);
 
   useEffect(() => {
     if (open) setVisible(true);
     else setTimeout(() => setVisible(false), 200);
   }, [open]);
 
-  function loginbutton() {
-    for (let i = 0; i < account.length; i++) {
-      const acc = account[i];
+  async function loginbutton() {
+    const cleanUserID = userID.trim();
+    const cleanPassword = password.trim();
 
-      if (
-        userID === acc.userId &&   // MUST MATCH Firestore field
-        password === acc.password
-      ) {
-        localStorage.setItem("loggedInAccountId", acc.userId);
-        localStorage.setItem("loggedInRole", acc.role || "admin");
-
-        router.push("/admin1");
-        return;
-      }
+    if (!cleanUserID || !cleanPassword) {
+      alert("Enter user ID and password");
+      return;
     }
 
-    alert("Invalid login");
+    try {
+      const userRef = doc(db, "Users", cleanUserID);
+      const userSnap = await getDoc(userRef);
+
+      if (!userSnap.exists()) {
+        alert("Invalid login (user not found)");
+        return;
+      }
+
+      const acc = userSnap.data();
+
+      if (cleanPassword !== acc.password) {
+        alert("Invalid login (wrong password)");
+        return;
+      }
+
+      // store session
+      localStorage.setItem("loggedInAccountId", cleanUserID);
+      localStorage.setItem("loggedInRole", acc.role || "user");
+
+      // routing (unchanged)
+      if (acc.role === "admin") {
+        router.push("/admin1");
+      } else {
+        router.push("/user");
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Error logging in");
+    }
   }
 
   return (
@@ -61,7 +69,7 @@ export default function Login() {
       {visible && (
         <div className={`login-dropdown ${open ? "open" : "close"}`}>
           <input
-            placeholder="Account ID"
+            placeholder="User ID"
             value={userID}
             onChange={(e) => setUserID(e.target.value)}
           />

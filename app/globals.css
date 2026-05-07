@@ -42,12 +42,14 @@ html, body {
 .login-form {
   display: none;
 }
+
+/* =========================
+   LOGIN (always on top)
+========================= */
 .login-container {
   position: fixed;
   top: 20px;
   right: 20px;
-  left: auto;
-  bottom: auto;
   z-index: 10000;
 
   display: flex;
@@ -85,6 +87,7 @@ html, body {
   transform: translateY(-10px) scale(0.95);
   transform-origin: top right;
   transition: all 0.2s ease;
+
   pointer-events: none;
 
   backdrop-filter: blur(10px);
@@ -112,78 +115,80 @@ html, body {
   color: white;
   cursor: pointer;
 }
-.left-image {
+
+/* =========================
+   IMAGE WRAPPERS (FIXED)
+========================= */
+
+/* wrapper positions ONLY — does NOT block clicks */
+.image-wrapper {
   position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+
+  pointer-events: none; /* 🔥 THIS FIXES YOUR LOGIN */
+}
+
+/* left/right positioning */
+.left-wrapper {
   left: 4vw;
-  top: 50%;
-  transform: translateY(-50%);
-
-  height: 60vh;
-  width: auto;
-
-  border-radius: 1rem;
-  transition: all 0.3s ease;
-
-  z-index: 1;
 }
 
-.left-image:hover {
-  transform: translateY(-50%) translateY(-10px) scale(1.05);
-  border: 3px solid #4c1d95;
-  box-shadow: 0 10px 30px rgba(76, 29, 149, 0.5);
-}
-.right-image {
-  position: fixed;
+.right-wrapper {
   right: 4vw;
-  top: 50%;
-  transform: translateY(-50%);
+}
 
+/* images now handle interaction */
+.left-image,
+.right-image {
   height: 60vh;
   width: auto;
-
   border-radius: 1rem;
   transition: all 0.3s ease;
 
-  z-index: 1;
+  pointer-events: auto; /* 🔥 allow hover again */
 }
 
+/* move hover from wrapper → image */
+.left-image:hover,
 .right-image:hover {
-  transform: translateY(-50%) translateY(-10px) scale(1.05);
+  transform: translateY(-10px) scale(1.05);
   border: 3px solid #4c1d95;
   box-shadow: 0 10px 30px rgba(76, 29, 149, 0.5);
 }
+/* =========================
+   TELLER BUTTON (FORCED PURPLE)
+========================= */
+.teller-button {
+  all: unset; /* removes white browser styles */
 
-.logo-float {
-  animation: floatLogo 4s ease-in-out infinite;
-  position: relative;
-  z-index: 2;
-  will-change: transform;
+  width: 100%;
+  padding: 0.75rem;
+
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  border-radius: 0.75rem;
+
+  background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+  color: white !important;
+
+  font-weight: 600;
+  cursor: pointer;
+
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+  transition: all 0.2s ease;
 }
 
-/* glow behind logo */
-.logo-float::before {
-  content: "";
-  position: absolute;
-  inset: -25px;
-  background: radial-gradient(
-    circle,
-    rgba(124, 58, 237, 0.35),
-    transparent 70%
-  );
-  border-radius: 50%;
-  z-index: -1;
-  filter: blur(12px);
-  animation: glowPulse 3s ease-in-out infinite;
+/* hover */
+.teller-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5);
 }
 
-@keyframes floatLogo {
-  0% { transform: translateY(0px) scale(1); }
-  50% { transform: translateY(-10px) scale(1.03); }
-  100% { transform: translateY(0px) scale(1); }
-}
-
-@keyframes glowPulse {
-  0% { opacity: 0.4; transform: scale(0.95); }
-  50% { opacity: 0.8; transform: scale(1.05); }
-  100% { opacity: 0.4; transform: scale(0.95); }
+/* click */
+.teller-button:active {
+  transform: scale(0.97);
 }

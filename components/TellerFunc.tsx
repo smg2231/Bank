@@ -4,12 +4,12 @@ import { useEffect, useState } from "react";
 import { db } from "../app/firebase";
 import {
   collection,
-  getDocs,
   doc,
   updateDoc,
   increment,
   addDoc,
   serverTimestamp,
+  onSnapshot,
 } from "firebase/firestore";
 import "../styles/teller.css";
 
@@ -21,42 +21,41 @@ export default function TellerFunc({ type }: Props) {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [selected, setSelected] = useState({ from: "", to: "" });
   const [amount, setAmount] = useState<number>(0);
-
-  // HISTORY STATE
   const [transactions, setTransactions] = useState<any[]>([]);
 
+  // Listen for real-time changes to the Accounts collection
+  // Updates account list and balances instantly whenever Firestore changes
   useEffect(() => {
-    const fetchAccounts = async () => {
-      const snap = await getDocs(collection(db, "Accounts"));
+    const unsub = onSnapshot(collection(db, "Accounts"), (snapshot) => {
       setAccounts(
-        snap.docs.map((d) => ({
+        snapshot.docs.map((d) => ({
           id: d.id,
           ...d.data(),
         }))
       );
-    };
+    });
 
-    fetchAccounts();
+    // Stop listening when component unmounts to avoid memory leaks
+    return () => unsub();
   }, []);
 
-  // ===== LOAD HISTORY =====
+  // Only run this listener when viewing the history tab
+  // Keeps transaction list in sync with Firestore in real time
   useEffect(() => {
     if (type !== "history") return;
 
-    const fetchHistory = async () => {
-      const snap = await getDocs(collection(db, "transcactions"));
-
-      const data = snap.docs.map((d) => ({
+    const unsub = onSnapshot(collection(db, "transcactions"), (snapshot) => {
+      const data = snapshot.docs.map((d) => ({
         id: d.id,
         ...d.data(),
       }));
-
       setTransactions(data);
-    };
+    });
 
-    fetchHistory();
+    return () => unsub();
   }, [type]);
 
+  // Writes a new transaction record to Firestore with a server-generated timestamp
   const logTransaction = async (data: any) => {
     await addDoc(collection(db, "transcactions"), {
       ...data,
@@ -70,6 +69,7 @@ export default function TellerFunc({ type }: Props) {
       return;
     }
 
+    // Grab the logged-in user's ID from localStorage for transaction logging
     const userId = localStorage.getItem("loggedInAccountId") || "unknown";
 
     // ===== TRANSFER =====
@@ -87,22 +87,13 @@ export default function TellerFunc({ type }: Props) {
       const fromRef = doc(db, "Accounts", selected.from);
       const toRef = doc(db, "Accounts", selected.to);
 
+      // Deduct from sender and add to receiver atomically
       await updateDoc(fromRef, { balance: increment(-amount) });
       await updateDoc(toRef, { balance: increment(amount) });
 
-      await logTransaction({
-        type: "transfer-out",
-        amount,
-        accountId: selected.from,
-        userId,
-      });
-
-      await logTransaction({
-        type: "transfer-in",
-        amount,
-        accountId: selected.to,
-        userId,
-      });
+      // Log both sides of the transfer as separate transaction records
+      await logTransaction({ type: "transfer-out", amount, accountId: selected.from, userId });
+      await logTransaction({ type: "transfer-in", amount, accountId: selected.to, userId });
 
       alert("Transfer successful");
       return;
@@ -117,28 +108,16 @@ export default function TellerFunc({ type }: Props) {
     const ref = doc(db, "Accounts", selected.from);
 
     if (type === "deposit") {
+      // Add funds to the selected account
       await updateDoc(ref, { balance: increment(amount) });
-
-      await logTransaction({
-        type: "deposit",
-        amount,
-        accountId: selected.from,
-        userId,
-      });
-
+      await logTransaction({ type: "deposit", amount, accountId: selected.from, userId });
       alert("Deposit successful");
     }
 
     if (type === "withdraw") {
+      // Deduct funds from the selected account
       await updateDoc(ref, { balance: increment(-amount) });
-
-      await logTransaction({
-        type: "withdrawal",
-        amount,
-        accountId: selected.from,
-        userId,
-      });
-
+      await logTransaction({ type: "withdrawal", amount, accountId: selected.from, userId });
       alert("Withdrawal successful");
     }
   };
@@ -160,6 +139,7 @@ export default function TellerFunc({ type }: Props) {
                   <br />
                   Account: {t.accountId}
                   <br />
+                  {/* toDate() converts Firestore Timestamp to JS Date; falls back to "Pending" before serverTimestamp resolves */}
                   Date: {t.date?.toDate?.()?.toLocaleString?.() || "Pending"}
                 </li>
               ))}
@@ -170,7 +150,7 @@ export default function TellerFunc({ type }: Props) {
     );
   }
 
-  // ================= NORMAL UI =================
+  // ================= DEPOSIT / WITHDRAW / TRANSFER UI =================
   return (
     <div className="teller-container">
       <h2>
@@ -181,15 +161,14 @@ export default function TellerFunc({ type }: Props) {
           : "Transfer Funds"}
       </h2>
 
+      {/* Transfer needs two account selectors; deposit/withdraw only need one */}
       {type === "transfer" ? (
         <>
           <label className="teller-label">From:</label>
           <select
             className="teller-select"
             value={selected.from}
-            onChange={(e) =>
-              setSelected({ ...selected, from: e.target.value })
-            }
+            onChange={(e) => setSelected({ ...selected, from: e.target.value })}
           >
             <option value="">Select Account</option>
             {accounts.map((acc) => (
@@ -203,9 +182,7 @@ export default function TellerFunc({ type }: Props) {
           <select
             className="teller-select"
             value={selected.to}
-            onChange={(e) =>
-              setSelected({ ...selected, to: e.target.value })
-            }
+            onChange={(e) => setSelected({ ...selected, to: e.target.value })}
           >
             <option value="">Select Account</option>
             {accounts.map((acc) => (
@@ -221,9 +198,7 @@ export default function TellerFunc({ type }: Props) {
           <select
             className="teller-select"
             value={selected.from}
-            onChange={(e) =>
-              setSelected({ ...selected, from: e.target.value })
-            }
+            onChange={(e) => setSelected({ ...selected, from: e.target.value })}
           >
             <option value="">Select Account</option>
             {accounts.map((acc) => (

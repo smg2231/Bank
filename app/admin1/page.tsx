@@ -5,49 +5,53 @@ import TotalMoney from "@/components/TotalMoney";
 import TellerFunc from "@/components/TellerFunc";
 import "../../styles/admin.css";
 
-export default function Admin1Page() {
-  const [loggedInAccountId, setLoggedInAccountId] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [activeComponent, setActiveComponent] = useState<string | null>(null);
+import {
+  Banknote,
+  ArrowDownToLine,
+  Send,
+  History,
+  LogOut,
+} from "lucide-react";
+
+export default function AdminPage() {
+  const [loggedInAccountId, setLoggedInAccountId] =
+    useState<string | null>(null);
+
+  const [activeComponent, setActiveComponent] =
+    useState<string | null>(null);
 
   useEffect(() => {
-    const accountId = localStorage.getItem("loggedInAccountId");
-    const userRole = localStorage.getItem("loggedInRole");
+    const accountId = localStorage.getItem(
+      "loggedInAccountId"
+    );
 
     setLoggedInAccountId(accountId);
-
-    if (!accountId || userRole !== "admin") {
-      alert("Access denied!");
-      window.location.href = "/";
-      return;
-    }
-
-    setLoading(false);
   }, []);
-
-  if (loading) return <p>Loading...</p>;
-
-  const actions = [
-    { title: "Deposit", type: "deposit" },
-    { title: "Withdraw", type: "withdraw" },
-    { title: "Transfer", type: "transfer" },
-    { title: "History", type: "history" },
-    { title: "Logout", type: "logout" },
-  ];
 
   const handleLogout = () => {
     localStorage.removeItem("loggedInAccountId");
     localStorage.removeItem("loggedInRole");
+
     window.location.href = "/";
   };
 
+  const actions = [
+    { title: "Deposit", type: "deposit", icon: Banknote },
+    { title: "Withdraw", type: "withdraw", icon: ArrowDownToLine },
+    { title: "Transfer", type: "transfer", icon: Send },
+    { title: "History", type: "history", icon: History },
+    { title: "Logout", type: "logout", icon: LogOut },
+  ];
+
   return (
     <main className="admin-container">
+      {/* ================= SIDEBAR ================= */}
       <aside className="admin-sidebar">
         <h2 className="admin-text">Actions</h2>
 
         {actions.map((action) => {
           const isActive = activeComponent === action.type;
+          const Icon = action.icon;
 
           return (
             <button
@@ -57,29 +61,55 @@ export default function Admin1Page() {
                   ? handleLogout
                   : () => setActiveComponent(action.type)
               }
-              className={`admin-button ${isActive ? "active" : ""} ${
+              className={`admin-button ${
+                isActive ? "active" : ""
+              } ${
                 action.type === "logout" ? "logout" : ""
               }`}
             >
-              {action.title}
+              <span className="sidebar-icon">
+                <Icon size={18} />
+              </span>
+
+              <span className="sidebar-text">
+                {action.title}
+              </span>
             </button>
           );
         })}
 
-        <div style={{ textAlign: "center" }}>
+        <div className="total-money">
           <TotalMoney />
         </div>
       </aside>
 
+      {/* ================= CONTENT ================= */}
       <section className="admin-content">
-        <h1 className="admin-text">Admin Dashboard</h1>
+        <h1 className="admin-text">
+          Admin Dashboard
+        </h1>
+
         <p>Welcome, {loggedInAccountId}</p>
 
-        {activeComponent === "deposit" && <TellerFunc type="deposit" />}
-        {activeComponent === "withdraw" && <TellerFunc type="withdraw" />}
-        {activeComponent === "transfer" && <TellerFunc type="transfer" />}
-        {activeComponent === "history" && <TellerFunc type="history" />}
-        {activeComponent === "logout" && <p>Logging out...</p>}
+        {!activeComponent && (
+          <p>Select an action from the sidebar.</p>
+        )}
+
+        {activeComponent === "deposit" && (
+          <TellerFunc type="deposit" />
+        )}
+
+        {activeComponent === "withdraw" && (
+          <TellerFunc type="withdraw" />
+        )}
+
+        {activeComponent === "transfer" && (
+          <TellerFunc type="transfer" />
+        )}
+
+        {activeComponent === "history" && (
+          <TellerFunc type="history" />
+        )}
       </section>
     </main>
   );

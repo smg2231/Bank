@@ -11,6 +11,7 @@
   "dependencies": {
     "@picocss/pico": "^2.1.1",
     "firebase": "^12.12.1",
+    "lucide-react": "^1.14.0",
     "next": "^16.2.0",
     "pico": "^0.1.17",
     "react": "19.2.3",

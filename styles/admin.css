@@ -1,79 +1,167 @@
-/* ===== Admin Layout ===== */
+/* =========================
+   ADMIN LAYOUT (MATCH TELLER THEME)
+========================= */
 .admin-container {
   display: flex;
   min-height: 100vh;
-  background-color: #020617; /* same dark navy */
+
+  background: #0a0118;
   color: white;
+
   font-family: var(--geist-sans), sans-serif;
 }
 
-/* ===== Sidebar ===== */
+/* =========================
+   SIDEBAR (GLASS PURPLE CARD STYLE)
+========================= */
 .admin-sidebar {
-  width: 220px;
+  width: 240px;
   padding: 20px;
-  border-right: 1px solid #1e293b;
-  box-sizing: border-box;
+
+  border-right: 1px solid rgba(124, 58, 237, 0.3);
+
+  background: linear-gradient(135deg, #1e0a3c, #2d1060);
+
+  box-shadow: 0 0 25px rgba(124, 58, 237, 0.25);
+
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 
+/* sidebar title */
 .admin-sidebar h2 {
   margin-bottom: 15px;
+  color: #e0c6ff;
+  font-weight: 700;
 }
 
-/* ===== Buttons (Purple Bubble Style) ===== */
+/* =========================
+   BUTTONS (MATCH TELLER STYLE + ICON SUPPORT)
+========================= */
 .admin-button {
-  display: block;
   width: 100%;
-  margin-bottom: 12px;
-  padding: 10px;
+  padding: 0.7rem;
 
-  border: none;
-  border-radius: 999px; /* bubble shape */
+  display: flex;
+  align-items: center;
+  gap: 10px;
 
-  background: linear-gradient(135deg, #7c3aed, #6d28d9);
+  border: 1px solid #5b21b6;
+  border-radius: 0.75rem;
+
+  background: rgba(45, 16, 96, 0.8);
   color: white;
+
   font-weight: 600;
 
   cursor: pointer;
+
   transition: all 0.2s ease;
-
 }
 
-/* Hover effect */
+/* icon styling */
+.sidebar-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  color: #c4b5fd;
+  min-width: 20px;
+}
+
+/* text alignment */
+.sidebar-text {
+  flex: 1;
+}
+
+/* hover glow like teller */
 .admin-button:hover {
-  transform: translateY(-2px) scale(1.03);
+  transform: translateY(-2px);
+  box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
+  border-color: #a855f7;
 }
 
-/* Active (selected) button */
+/* active state */
 .admin-button.active {
-  background: linear-gradient(135deg, #a78bfa, #7c3aed);
-  transform: scale(0.96);
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  border-color: #a855f7;
 
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
 }
 
-/* Logout button (red bubble) */
+/* active icon highlight */
+.admin-button.active .sidebar-icon {
+  color: white;
+}
+
+/* logout (red but same system) */
 .admin-button.logout {
   background: linear-gradient(135deg, #ef4444, #dc2626);
+  border: none;
 }
 
-/* ===== Total Money Section ===== */
-.admin-text {
-  margin-top: 25px;
-  color: rgb(161, 161, 255);
-  text-align: center;
+.admin-button.logout:hover {
+  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
 }
 
-/* ===== Main Content ===== */
+/* =========================
+   MAIN CONTENT AREA (TELLER CARD STYLE)
+========================= */
 .admin-content {
   flex: 1;
   padding: 25px;
   overflow-y: auto;
+
+  background: #0a0118;
 }
 
-/* Optional: make content feel like a panel */
+/* content panels (same as teller card) */
+.admin-content > div,
+.admin-content ul,
+.admin-content p {
+  background: linear-gradient(135deg, #1e0a3c, #2d1060);
+
+  border: 1px solid rgba(124, 58, 237, 0.3);
+
+  border-radius: 1.5rem;
+
+  padding: 15px;
+
+  box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
+}
+
+/* headings */
 .admin-content h1 {
+  color: #e0c6ff;
   margin-bottom: 10px;
 }
 
 .admin-content p {
   color: #cbd5f5;
+}
+
+/* =========================
+   LIST ITEMS (BUBBLE STYLE)
+========================= */
+.admin-content li {
+  list-style: none;
+  margin-bottom: 10px;
+
+  padding: 12px;
+
+  border-radius: 1rem;
+
+  background: rgba(45, 16, 96, 0.8);
+  border: 1px solid #5b21b6;
+}
+
+/* =========================
+   TOTAL MONEY (MATCH CARD STYLE)
+========================= */
+.admin-text {
+  margin-top: 25px;
+  text-align: center;
+
+  color: #c4b5fd;
 }

@@ -1,37 +1,28 @@
-"use client"; // Marks this component for client-side rendering in Next.js
+"use client";
 
 import { useEffect, useState } from "react";
 import { db } from "../app/firebase";
-import { collection, getDocs } from "firebase/firestore";
+import { collection, onSnapshot } from "firebase/firestore";
 
 export default function TotalMoney() {
   const [total, setTotal] = useState<number>(0);
-  const [account, setAccount] = useState<any[]>([]);
 
   useEffect(() => {
-    const fetchAccount = async (): Promise<void> => {
-      try {
-        const querySnapshot = await getDocs(collection(db, "Accounts"));
-        const accountList = querySnapshot.docs.map(doc => ({
-          id: doc.id,
-          ...doc.data()
-        }));
-        setAccount(accountList);
+    const unsub = onSnapshot(collection(db, "Accounts"), (snapshot) => {
+      const sum = snapshot.docs.reduce((acc, doc) => {
+        const data = doc.data();
+        return acc + Number(data.balance || 0);
+      }, 0);
+      setTotal(sum);
+    });
 
-        // Calculate total here after fetching
-        let sum = 0;
-        for (let i = 0; i < accountList.length; i++) {
-          sum += Number(accountList[i].balance || 0);
-        }
-        setTotal(sum);
-      } catch (err) {
-        console.log(err);
-        setTotal(0);
-      }
-    };
-
-    fetchAccount();
+    return () => unsub(); // cleanup listener on unmount
   }, []);
 
-  return <div style={{ fontSize: 20, marginTop: 5 }}>Total Money: ${total}</div>;
+  return (
+    <div style={{ fontSize: 20, marginTop: 5 }}>
+      Total Money:{" "}
+      {total.toLocaleString("en-US", { style: "currency", currency: "USD" })}
+    </div>
+  );
 }
