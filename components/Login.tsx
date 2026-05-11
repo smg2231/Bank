@@ -58,7 +58,7 @@ export default function Login() {
         return;
       }
 
-      // ✅ FIX: store accountID (NOT username)
+      // FIX: store accountID (NOT username)
       localStorage.setItem("loggedInAccountId", acc.accountID);
       localStorage.setItem("loggedInRole", acc.role || "user");
 
@@ -66,7 +66,7 @@ export default function Login() {
       setOpen(false);
 
       // redirect
-      if (acc.role === "admin") router.push("/admin1");
+      if (acc.role === "admin") router.push("/admin");
       else router.push("/user");
 
     } catch (error) {
