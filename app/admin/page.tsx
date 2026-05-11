@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import TotalMoney from "@/components/TotalMoney";
 import TellerFunc from "@/components/TellerFunc";
 import "../../styles/admin.css";
@@ -14,26 +15,38 @@ import {
 } from "lucide-react";
 
 export default function AdminPage() {
+  const router = useRouter();
+
   const [loggedInAccountId, setLoggedInAccountId] = useState<string | null>(null);
   const [activeComponent, setActiveComponent] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  //  safer auth check (runs once + reacts properly on mount)
+  //AUTH GUARD (real protection logic)
   useEffect(() => {
     const accountId = localStorage.getItem("loggedInAccountId");
+    const role = localStorage.getItem("loggedInRole");
 
+    //not logged in → redirect
     if (!accountId) {
-      window.location.href = "/";
+      router.replace("/");
+      return;
+    }
+
+    // not admin → redirect
+    if (role !== "admin") {
+      router.replace("/user");
       return;
     }
 
     setLoggedInAccountId(accountId);
-  }, []);
+    setLoading(false);
+  }, [router]);
 
   const handleLogout = () => {
     localStorage.removeItem("loggedInAccountId");
     localStorage.removeItem("loggedInRole");
 
-    window.location.href = "/";
+    router.replace("/");
   };
 
   const actions = [
@@ -43,6 +56,9 @@ export default function AdminPage() {
     { title: "History", type: "history", icon: History },
     { title: "Logout", type: "logout", icon: LogOut },
   ];
+
+  //prevents flashing UI before auth check finishes
+  if (loading) return null;
 
   return (
     <main className="admin-container">
@@ -86,9 +102,7 @@ export default function AdminPage() {
       <section className="admin-content">
         <h1 className="admin-text">Admin Dashboard</h1>
 
-        <p>
-          Welcome, {loggedInAccountId ?? "Guest"}
-        </p>
+        <p>Welcome, {loggedInAccountId}</p>
 
         {!activeComponent && (
           <p>Select an action from the sidebar.</p>

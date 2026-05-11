@@ -69,7 +69,7 @@ export default function UserPage() {
   return (
     <main className="admin-container">
       <aside className="admin-sidebar">
-        <h2 className="admin-text">User Panel</h2>
+        <h2 className="admin-text">Main Page</h2>
 
         <div className="admin-text">
           Balance:
@@ -94,7 +94,7 @@ export default function UserPage() {
       </aside>
 
       <section className="admin-content">
-        <h1 className="admin-text">Welcome, {account.id}</h1>
+        <h1 className="admin-text">Welcome</h1>
 
         <h3>Your Transactions</h3>
 

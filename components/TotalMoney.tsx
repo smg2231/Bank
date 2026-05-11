@@ -5,24 +5,40 @@ import { db } from "../app/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 
 export default function TotalMoney() {
-  const [total, setTotal] = useState<number>(0);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "Accounts"), (snapshot) => {
-      const sum = snapshot.docs.reduce((acc, doc) => {
-        const data = doc.data();
-        return acc + Number(data.balance || 0);
-      }, 0);
-      setTotal(sum);
-    });
+    const unsubscribe = onSnapshot(
+      collection(db, "Accounts"),
+      (snapshot) => {
+        let sum = 0;
 
-    return () => unsub(); // cleanup listener on unmount
+        snapshot.forEach((doc) => {
+          const data = doc.data();
+          const balance = parseFloat(data?.balance);
+
+          if (!isNaN(balance)) {
+            sum += balance;
+          }
+        });
+
+        setTotal(sum);
+      },
+      (error) => {
+        console.error("Firestore snapshot error:", error);
+      }
+    );
+
+    return () => unsubscribe();
   }, []);
 
   return (
     <div style={{ fontSize: 20, marginTop: 5 }}>
       Total Money:{" "}
-      {total.toLocaleString("en-US", { style: "currency", currency: "USD" })}
+      {total.toLocaleString("en-US", {
+        style: "currency",
+        currency: "USD",
+      })}
     </div>
   );
 }
