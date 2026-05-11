@@ -14,16 +14,17 @@ import {
 } from "lucide-react";
 
 export default function AdminPage() {
-  const [loggedInAccountId, setLoggedInAccountId] =
-    useState<string | null>(null);
+  const [loggedInAccountId, setLoggedInAccountId] = useState<string | null>(null);
+  const [activeComponent, setActiveComponent] = useState<string | null>(null);
 
-  const [activeComponent, setActiveComponent] =
-    useState<string | null>(null);
-
+  //  safer auth check (runs once + reacts properly on mount)
   useEffect(() => {
-    const accountId = localStorage.getItem(
-      "loggedInAccountId"
-    );
+    const accountId = localStorage.getItem("loggedInAccountId");
+
+    if (!accountId) {
+      window.location.href = "/";
+      return;
+    }
 
     setLoggedInAccountId(accountId);
   }, []);
@@ -63,9 +64,7 @@ export default function AdminPage() {
               }
               className={`admin-button ${
                 isActive ? "active" : ""
-              } ${
-                action.type === "logout" ? "logout" : ""
-              }`}
+              } ${action.type === "logout" ? "logout" : ""}`}
             >
               <span className="sidebar-icon">
                 <Icon size={18} />
@@ -85,11 +84,11 @@ export default function AdminPage() {
 
       {/* ================= CONTENT ================= */}
       <section className="admin-content">
-        <h1 className="admin-text">
-          Admin Dashboard
-        </h1>
+        <h1 className="admin-text">Admin Dashboard</h1>
 
-        <p>Welcome, {loggedInAccountId}</p>
+        <p>
+          Welcome, {loggedInAccountId ?? "Guest"}
+        </p>
 
         {!activeComponent && (
           <p>Select an action from the sidebar.</p>

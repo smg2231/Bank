@@ -3,86 +3,121 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "../app/firebase";
-import { doc, getDoc } from "firebase/firestore";
+import { collection, query, where, getDocs } from "firebase/firestore";
 
 export default function Login() {
-  const [userID, setUserID] = useState("");
+  const [userID, setUserID] = useState(""); // username input
   const [password, setPassword] = useState("");
 
   const [open, setOpen] = useState(false);
   const [visible, setVisible] = useState(false);
 
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
   const router = useRouter();
 
+  // sync login state on load
+  useEffect(() => {
+    const id = localStorage.getItem("loggedInAccountId");
+    setIsLoggedIn(!!id);
+  }, []);
+
+  // dropdown animation
   useEffect(() => {
     if (open) setVisible(true);
     else setTimeout(() => setVisible(false), 200);
   }, [open]);
 
+  // LOGIN (username-based)
   async function loginbutton() {
-    const cleanUserID = userID.trim();
+    const cleanUsername = userID.trim();
     const cleanPassword = password.trim();
 
-    if (!cleanUserID || !cleanPassword) {
-      alert("Enter user ID and password");
-      return;
-    }
+    if (!cleanUsername || !cleanPassword) return;
 
     try {
-      const userRef = doc(db, "Users", cleanUserID);
-      const userSnap = await getDoc(userRef);
+      // search user by username
+      const q = query(
+        collection(db, "Users"),
+        where("username", "==", cleanUsername)
+      );
 
-      if (!userSnap.exists()) {
-        alert("Invalid login (user not found)");
+      const snap = await getDocs(q);
+
+      if (snap.empty) {
+        alert("User not found");
         return;
       }
 
-      const acc = userSnap.data();
+      const userDoc = snap.docs[0];
+      const acc = userDoc.data();
 
+      // password check
       if (cleanPassword !== acc.password) {
-        alert("Invalid login (wrong password)");
+        alert("Incorrect password");
         return;
       }
 
-      // store session
-      localStorage.setItem("loggedInAccountId", cleanUserID);
+      // ✅ FIX: store accountID (NOT username)
+      localStorage.setItem("loggedInAccountId", acc.accountID);
       localStorage.setItem("loggedInRole", acc.role || "user");
 
-      // routing (unchanged)
-      if (acc.role === "admin") {
-        router.push("/admin1");
-      } else {
-        router.push("/user");
-      }
-    } catch (err) {
-      console.error(err);
-      alert("Error logging in");
+      setIsLoggedIn(true);
+      setOpen(false);
+
+      // redirect
+      if (acc.role === "admin") router.push("/admin1");
+      else router.push("/user");
+
+    } catch (error) {
+      console.error(error);
+      alert("Login error");
     }
+  }
+
+  // LOGOUT
+  function logout() {
+    localStorage.removeItem("loggedInAccountId");
+    localStorage.removeItem("loggedInRole");
+
+    setIsLoggedIn(false);
+    router.push("/");
   }
 
   return (
     <div className="login-container">
-      <button onClick={() => setOpen(!open)} className="login-toggle">
-        Login
-      </button>
+      {isLoggedIn ? (
+        <button className="login-toggle" onClick={logout}>
+          Logout
+        </button>
+      ) : (
+        <>
+          <button
+            onClick={() => setOpen(!open)}
+            className="login-toggle"
+          >
+            Login
+          </button>
 
-      {visible && (
-        <div className={`login-dropdown ${open ? "open" : "close"}`}>
-          <input
-            placeholder="User ID"
-            value={userID}
-            onChange={(e) => setUserID(e.target.value)}
-          />
+          {visible && (
+            <div className={`login-dropdown ${open ? "open" : "close"}`}>
+              <input
+                placeholder="Username"
+                value={userID}
+                onChange={(e) => setUserID(e.target.value)}
+              />
 
-          <input
-            placeholder="Password"
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-          />
+              <input
+                placeholder="Password"
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
 
-          <button onClick={loginbutton}>Submit</button>
-        </div>
+              <button onClick={loginbutton}>Submit</button>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

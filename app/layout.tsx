@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import LoginWrapper from "@/components/LoginWrapper";
-
 const geistSans = Geist({
   subsets: ["latin"],
   weight: ["400", "700"],
@@ -31,7 +29,6 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${geistSans.className} ${geistMono.className}`}>
-        <LoginWrapper />
         <main>{children}</main>
       </body>
     </html>
