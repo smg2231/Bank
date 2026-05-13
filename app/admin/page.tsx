@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 
 import TotalMoney from "@/components/TotalMoney";
 import TellerFunc from "@/components/TellerFunc";
+import History from "@/components/History";
 
 import "../../styles/admin.css";
 
@@ -12,7 +13,7 @@ import {
   Banknote,
   ArrowDownToLine,
   Send,
-  History,
+  History as HistoryIcon,
   LogOut,
 } from "lucide-react";
 
@@ -21,7 +22,7 @@ export default function AdminPage() {
 
   // logged in account id
   const [loggedInAccountId, setLoggedInAccountId] =
-    useState<string | null>(null);
+    useState<string>("");
 
   // active sidebar component
   const [activeComponent, setActiveComponent] =
@@ -36,16 +37,17 @@ export default function AdminPage() {
     const accountId =
       localStorage.getItem(
         "loggedInAccountId"
-      );
+      ) || "";
 
     const role =
       localStorage.getItem(
         "loggedInRole"
-      );
+      ) || "";
 
-    // convert role safely
+    // safely check admin
     const isAdmin =
-      role?.toLowerCase() === "admin";
+      role.trim().toLowerCase() ===
+      "admin";
 
     // not logged in
     if (!accountId) {
@@ -101,7 +103,7 @@ export default function AdminPage() {
     {
       title: "History",
       type: "history",
-      icon: History,
+      icon: HistoryIcon,
     },
 
     {
@@ -124,7 +126,8 @@ export default function AdminPage() {
 
         {actions.map((action) => {
           const isActive =
-            activeComponent === action.type;
+            activeComponent ===
+            action.type;
 
           const Icon = action.icon;
 
@@ -140,9 +143,12 @@ export default function AdminPage() {
                       )
               }
               className={`admin-button ${
-                isActive ? "active" : ""
+                isActive
+                  ? "active"
+                  : ""
               } ${
-                action.type === "logout"
+                action.type ===
+                "logout"
                   ? "logout"
                   : ""
               }`}
@@ -158,7 +164,7 @@ export default function AdminPage() {
           );
         })}
 
-        {/* total money box */}
+        {/* total money */}
         <div className="total-money">
           <TotalMoney />
         </div>
@@ -201,11 +207,9 @@ export default function AdminPage() {
           <TellerFunc type="transfer" />
         )}
 
-        {/* history */}
+        {/* FIXED HISTORY */}
         {activeComponent ===
-          "history" && (
-          <TellerFunc type="history" />
-        )}
+          "history" && <History />}
       </section>
     </main>
   );

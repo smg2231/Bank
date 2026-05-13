@@ -1,238 +1,114 @@
 "use client";
+
+import "../styles/history.css";
 import { useEffect, useState } from "react";
 import { db } from "../app/firebase";
-import {
-  doc,
-  onSnapshot,
-  collection,
-  getDocs,
-} from "firebase/firestore";
+import { collection, onSnapshot, query, where, orderBy } from "firebase/firestore";
 
 export default function History() {
-  const [status, setStatus] = useState<
-    "processing" | "success" | "error"
-  >("processing");
-
+  const [status, setStatus] = useState("processing");
   const [message, setMessage] = useState("");
+  const [transcactions, setTransactions] = useState<any[]>([]);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [searchAccount, setSearchAccount] = useState("");
+  const [searchInput, setSearchInput] = useState("");
 
-  const [transactions, setTransactions] =
-    useState<any[]>([]);
-
-  const [isAdmin, setIsAdmin] =
-    useState(false);
-
-  const [searchAccount, setSearchAccount] =
-    useState("");
-
-  // load user + role
+  // get user + role
   useEffect(() => {
-    const id =
-      localStorage.getItem("loggedInAccountId");
-
-    const role =
-      localStorage.getItem("loggedInRole");
-
-    const admin =
-      role?.toLowerCase() === "admin";
+    const id = localStorage.getItem("loggedInAccountId") || "";
+    const role = localStorage.getItem("loggedInRole") || "";
+    const admin = role.toLowerCase() === "admin";
 
     setIsAdmin(admin);
-
-    // normal user auto-loads account
-    if (!admin && id) {
-      setSearchAccount(id);
-    }
-
-    // admin starts empty
-    if (admin) {
-      setStatus("success");
-    }
+    if (!admin && id) setSearchAccount(id);
+    else setStatus("success");
   }, []);
 
-  // load account transactions
+  // listen to transactions
   useEffect(() => {
-    // admin can stay empty
-    if (!searchAccount) {
-      if (isAdmin) {
-        setTransactions([]);
-        setStatus("success");
-      }
-
-      return;
-    }
-
     setStatus("processing");
 
+    let q;
+
+    if (isAdmin && searchAccount) {
+      q = query(
+        collection(db, "transcactions"),
+        where("accountId", "==", searchAccount),
+        orderBy("date", "desc")
+      );
+    } else if (isAdmin) {
+      q = query(collection(db, "transcactions"), orderBy("date", "desc"));
+    } else {
+      q = query(
+        collection(db, "transcactions"),
+        where("accountId", "==", searchAccount),
+        orderBy("date", "desc")
+      );
+    }
+
     const unsub = onSnapshot(
-      doc(db, "Accounts", searchAccount),
-      (snapshot) => {
-        if (!snapshot.exists()) {
-          setStatus("error");
-          setMessage("Account not found");
-          setTransactions([]);
-          return;
-        }
-
-        const data = snapshot.data();
-
-        let tx =
-          data?.transactions ||
-          data?.transcactions ||
-          [];
-
-        tx = tx.sort((a: any, b: any) => {
-          const aDate = a.date?.seconds
-            ? a.date.seconds * 1000
-            : new Date(a.date).getTime();
-
-          const bDate = b.date?.seconds
-            ? b.date.seconds * 1000
-            : new Date(b.date).getTime();
-
-          return bDate - aDate;
-        });
-
-        setTransactions(tx);
+      q,
+      (snap) => {
+        setTransactions(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
         setStatus("success");
       },
-      (err) => {
-        console.error(err);
-
+      () => {
         setStatus("error");
-        setMessage(
-          "Failed to load transaction history."
-        );
+        setMessage("Failed to load history");
       }
     );
 
     return () => unsub();
-  }, [searchAccount, isAdmin]);
+  }, [isAdmin, searchAccount]);
 
-  // admin view all
-  async function loadAllAccounts() {
-    try {
-      setStatus("processing");
-
-      const snap = await getDocs(
-        collection(db, "Accounts")
-      );
-
-      const all: any[] = [];
-
-      snap.forEach((docSnap) => {
-        const data = docSnap.data();
-
-        const tx =
-          data.transactions ||
-          data.transcactions ||
-          [];
-
-        tx.forEach((t: any) => {
-          all.push({
-            ...t,
-            accountID: docSnap.id,
-          });
-        });
-      });
-
-      all.sort((a: any, b: any) => {
-        const aDate = a.date?.seconds
-          ? a.date.seconds * 1000
-          : new Date(a.date).getTime();
-
-        const bDate = b.date?.seconds
-          ? b.date.seconds * 1000
-          : new Date(b.date).getTime();
-
-        return bDate - aDate;
-      });
-
-      setTransactions(all);
-      setStatus("success");
-    } catch (err) {
-      console.error(err);
-
-      setStatus("error");
-      setMessage(
-        "Failed to load all accounts."
-      );
-    }
+  // search admin
+  function handleSearch() {
+    setSearchAccount(searchInput.trim());
   }
+
+  // format date
+  const formatDate = (d: any) =>
+    d?.toDate ? d.toDate().toLocaleString() : new Date(d).toLocaleString();
 
   return (
     <div className="history-container">
-      <h2>Transaction History</h2>
+      <h2>History</h2>
 
-      {/* admin search */}
+      {/* admin tools */}
       {isAdmin && (
-        <div
-          style={{
-            marginBottom: "15px",
-            display: "flex",
-            gap: "10px",
-          }}
-        >
+        <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
           <input
             className="history-search"
-            placeholder="Search account ID"
-            value={searchAccount}
-            onChange={(e) =>
-              setSearchAccount(e.target.value)
-            }
+            value={searchInput}
+            onChange={(e) => setSearchInput(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+            placeholder="Account ID"
           />
-
-          <button onClick={loadAllAccounts}>
-            View All Accounts
-          </button>
+          <button onClick={handleSearch}>Search</button>
+          <button onClick={() => setSearchAccount("")}>All</button>
         </div>
       )}
 
-      {status === "processing" && (
-        <p>Loading...</p>
-      )}
+      {status === "processing" && <p>Loading...</p>}
+      {status === "error" && <p style={{ color: "red" }}>{message}</p>}
 
-      {status === "error" && (
-        <p>{message}</p>
-      )}
-
+      {/* list */}
       {status === "success" && (
-        <>
-          {transactions.length === 0 ? (
-            <p>No transactions found.</p>
+        <div className="history-scroll-box">
+          {transcactions.length === 0 ? (
+            <p>No data</p>
           ) : (
-            <div className="history-scroll-box">
-              <ul>
-                {transactions.map((tx, index) => (
-                  <li
-                    key={index}
-                    className="history-item"
-                  >
-                    <strong>{tx.type}</strong>
-                    {" - $"}
-                    {tx.amount}
-
-                    <br />
-
-                    {tx.accountID && (
-                      <small>
-                        Account: {tx.accountID}
-                      </small>
-                    )}
-
-                    <br />
-
-                    {tx.date?.toDate
-                      ? tx.date
-                          .toDate()
-                          .toString()
-                      : new Date(
-                          tx.date
-                        ).toString()}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            transcactions.map((tx, i) => (
+              <div key={i} className="history-item">
+                <b>{tx.type}</b> - ${tx.amount}
+                <br />
+                <small>{tx.accountId}</small>
+                <br />
+                <small>{formatDate(tx.date)}</small>
+              </div>
+            ))
           )}
-        </>
+        </div>
       )}
     </div>
   );

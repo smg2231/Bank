@@ -3,8 +3,11 @@
 /* full page scroll */
 .history-container {
   padding: 20px;
-  height: 100vh;
-  overflow-y: auto;
+
+  height: 100%;
+  width: 100%;
+
+  overflow: hidden;
   box-sizing: border-box;
 
   display: flex;
@@ -12,22 +15,42 @@
   align-items: center;
 }
 
-/* 🔥 BIGGER HISTORY BOX */
+/* BIGGER HISTORY BOX */
 .history-scroll-box {
   width: 90%;
   max-width: 1000px;
 
-  height: 75vh;              /* 👈 makes it large */
-  overflow-y: auto;          /* internal scroll */
+  height: 75vh;
+  overflow-y: auto;
 
   border: 1px solid #2d2d2d;
   border-radius: 12px;
 
   padding: 20px;
-  background: #0f172a;       /* dark dashboard look */
+
+  background: #0f172a;
   color: white;
 
   box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+}
+
+/* custom scrollbar */
+.history-scroll-box::-webkit-scrollbar {
+  width: 10px;
+}
+
+.history-scroll-box::-webkit-scrollbar-track {
+  background: #020617;
+  border-radius: 10px;
+}
+
+.history-scroll-box::-webkit-scrollbar-thumb {
+  background: #7c3aed;
+  border-radius: 10px;
+}
+
+.history-scroll-box::-webkit-scrollbar-thumb:hover {
+  background: #a855f7;
 }
 
 /* search input spacing */
@@ -40,6 +63,9 @@
 
   border-radius: 8px;
   border: 1px solid #444;
+
+  background: #0f172a;
+  color: white;
 }
 
 /* list item spacing */
