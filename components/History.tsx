@@ -3,7 +3,13 @@
 import "../styles/history.css";
 import { useEffect, useState } from "react";
 import { db } from "../app/firebase";
-import { collection, onSnapshot, query, where, orderBy } from "firebase/firestore";
+import {
+  collection,
+  onSnapshot,
+  query,
+  where,
+  orderBy,
+} from "firebase/firestore";
 
 export default function History() {
   const [status, setStatus] = useState("processing");
@@ -13,19 +19,25 @@ export default function History() {
   const [searchAccount, setSearchAccount] = useState("");
   const [searchInput, setSearchInput] = useState("");
 
-  // get user + role
+  // get user
   useEffect(() => {
     const id = localStorage.getItem("loggedInAccountId") || "";
     const role = localStorage.getItem("loggedInRole") || "";
     const admin = role.toLowerCase() === "admin";
 
     setIsAdmin(admin);
-    if (!admin && id) setSearchAccount(id);
-    else setStatus("success");
+
+    if (!admin && id) {
+      setSearchAccount(id);
+    } else {
+      setStatus("success");
+    }
   }, []);
 
-  // listen to transactions
+  // load history
   useEffect(() => {
+    if (!isAdmin && !searchAccount) return;
+
     setStatus("processing");
 
     let q;
@@ -37,7 +49,10 @@ export default function History() {
         orderBy("date", "desc")
       );
     } else if (isAdmin) {
-      q = query(collection(db, "transcactions"), orderBy("date", "desc"));
+      q = query(
+        collection(db, "transcactions"),
+        orderBy("date", "desc")
+      );
     } else {
       q = query(
         collection(db, "transcactions"),
@@ -49,26 +64,38 @@ export default function History() {
     const unsub = onSnapshot(
       q,
       (snap) => {
-        setTransactions(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
+        setTransactions(
+          snap.docs.map((d) => ({
+            id: d.id,
+            ...d.data(),
+          }))
+        );
+
         setStatus("success");
       },
-      () => {
+      (error) => {
+        console.error(error);
         setStatus("error");
-        setMessage("Failed to load history");
+        setMessage(error.message || "Failed to load history");
       }
     );
 
     return () => unsub();
   }, [isAdmin, searchAccount]);
 
-  // search admin
+  // admin search
   function handleSearch() {
     setSearchAccount(searchInput.trim());
   }
 
   // format date
-  const formatDate = (d: any) =>
-    d?.toDate ? d.toDate().toLocaleString() : new Date(d).toLocaleString();
+  const formatDate = (d: any) => {
+    if (!d) return "No date";
+
+    return d?.toDate
+      ? d.toDate().toLocaleString()
+      : new Date(d).toLocaleString();
+  };
 
   return (
     <div className="history-container">
@@ -84,13 +111,27 @@ export default function History() {
             onKeyDown={(e) => e.key === "Enter" && handleSearch()}
             placeholder="Account ID"
           />
+
           <button onClick={handleSearch}>Search</button>
-          <button onClick={() => setSearchAccount("")}>All</button>
+
+          <button
+            onClick={() => {
+              setSearchInput("");
+              setSearchAccount("");
+            }}
+          >
+            All
+          </button>
         </div>
       )}
 
+      {/* loading */}
       {status === "processing" && <p>Loading...</p>}
-      {status === "error" && <p style={{ color: "red" }}>{message}</p>}
+
+      {/* error */}
+      {status === "error" && (
+        <p style={{ color: "red" }}>{message}</p>
+      )}
 
       {/* list */}
       {status === "success" && (
@@ -98,11 +139,11 @@ export default function History() {
           {transcactions.length === 0 ? (
             <p>No data</p>
           ) : (
-            transcactions.map((tx, i) => (
-              <div key={i} className="history-item">
-                <b>{tx.type}</b> - ${tx.amount}
+            transcactions.map((tx) => (
+              <div key={tx.id} className="history-item">
+                <b>{tx.type || "Unknown"}</b> - ${tx.amount || 0}
                 <br />
-                <small>{tx.accountId}</small>
+                <small>{tx.accountId || "No account"}</small>
                 <br />
                 <small>{formatDate(tx.date)}</small>
               </div>
