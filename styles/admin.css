@@ -58,6 +58,13 @@
   color: white;
   cursor: pointer;
   font-weight: 600;
+
+  /* Center content */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  text-align: center;
 }
 
 .admin-button:hover {
@@ -93,4 +100,20 @@
   border-radius: 1.2rem;
   background: linear-gradient(135deg, #1e0a3c, #2d1060);
   border: 1px solid rgba(124, 58, 237, 0.3);
+}
+
+/* =========================
+   SIDEBAR TRANSFER FORM
+========================= */
+.admin-sidebar .teller-select,
+.admin-sidebar .teller-input {
+  padding: 0.45rem 0.6rem;
+  font-size: 0.8rem;
+  border-radius: 0.5rem;
+}
+
+.admin-sidebar .teller-button {
+  padding: 0.5rem;
+  font-size: 0.8rem;
+  border-radius: 0.5rem;
 }
