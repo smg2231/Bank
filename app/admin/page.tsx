@@ -20,115 +20,52 @@ import {
 export default function AdminPage() {
   const router = useRouter();
 
-  // logged in account id
-  const [loggedInAccountId, setLoggedInAccountId] =
-    useState<string>("");
+  const [loggedInUserId, setLoggedInUserId] = useState("");
+  const [activeComponent, setActiveComponent] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  // active sidebar component
-  const [activeComponent, setActiveComponent] =
-    useState<string | null>(null);
-
-  // prevents ui flash before auth check
-  const [loading, setLoading] =
-    useState(true);
-
-  // protect admin route
+  // ================= AUTH CHECK =================
   useEffect(() => {
-    const accountId =
-      localStorage.getItem(
-        "loggedInAccountId"
-      ) || "";
+    const userId = localStorage.getItem("loggedInUserId");
+    const role = localStorage.getItem("loggedInRole");
 
-    const role =
-      localStorage.getItem(
-        "loggedInRole"
-      ) || "";
+    const isAdmin = role?.trim().toLowerCase() === "admin";
 
-    // safely check admin
-    const isAdmin =
-      role.trim().toLowerCase() ===
-      "admin";
-
-    // not logged in
-    if (!accountId) {
+    if (!userId) {
       router.replace("/");
       return;
     }
 
-    // not admin
     if (!isAdmin) {
       router.replace("/user");
       return;
     }
 
-    setLoggedInAccountId(accountId);
-
-    // auth finished
+    setLoggedInUserId(userId);
     setLoading(false);
   }, [router]);
 
-  // logout function
   const handleLogout = () => {
-    localStorage.removeItem(
-      "loggedInAccountId"
-    );
-
-    localStorage.removeItem(
-      "loggedInRole"
-    );
-
+    localStorage.clear();
     router.replace("/");
   };
 
-  // sidebar actions
   const actions = [
-    {
-      title: "Deposit",
-      type: "deposit",
-      icon: Banknote,
-    },
-
-    {
-      title: "Withdraw",
-      type: "withdraw",
-      icon: ArrowDownToLine,
-    },
-
-    {
-      title: "Transfer",
-      type: "transfer",
-      icon: Send,
-    },
-
-    {
-      title: "History",
-      type: "history",
-      icon: HistoryIcon,
-    },
-
-    {
-      title: "Logout",
-      type: "logout",
-      icon: LogOut,
-    },
+    { title: "Deposit", type: "deposit", icon: Banknote },
+    { title: "Withdraw", type: "withdraw", icon: ArrowDownToLine },
+    { title: "Transfer", type: "transfer", icon: Send },
+    { title: "History", type: "history", icon: HistoryIcon },
+    { title: "Logout", type: "logout", icon: LogOut },
   ];
 
-  // prevents flashing page
   if (loading) return null;
 
   return (
     <main className="admin-container">
-      {/* sidebar */}
       <aside className="admin-sidebar">
-        <h2 className="admin-text">
-          Actions
-        </h2>
+        <h2>Actions</h2>
 
         {actions.map((action) => {
-          const isActive =
-            activeComponent ===
-            action.type;
-
           const Icon = action.icon;
 
           return (
@@ -137,79 +74,42 @@ export default function AdminPage() {
               onClick={
                 action.type === "logout"
                   ? handleLogout
-                  : () =>
-                      setActiveComponent(
-                        action.type
-                      )
+                  : () => setActiveComponent(action.type)
               }
-              className={`admin-button ${
-                isActive
-                  ? "active"
-                  : ""
-              } ${
-                action.type ===
-                "logout"
-                  ? "logout"
-                  : ""
-              }`}
+              className="admin-button"
             >
-              <span className="sidebar-icon">
-                <Icon size={18} />
-              </span>
-
-              <span className="sidebar-text">
-                {action.title}
-              </span>
+              <Icon size={18} />
+              {action.title}
             </button>
           );
         })}
 
-        {/* total money */}
+        {/* TOTAL MONEY FIXED */}
         <div className="total-money">
           <TotalMoney />
         </div>
       </aside>
 
-      {/* main content */}
       <section className="admin-content">
-        <h1 className="admin-text">
-          Admin Dashboard
-        </h1>
+        <h1>Admin Dashboard</h1>
 
-        <p>
-          Welcome,{" "}
-          {loggedInAccountId}
-        </p>
+        {!activeComponent && <p>Select an action</p>}
 
-        {/* default message */}
-        {!activeComponent && (
-          <p>
-            Select an action from the
-            sidebar.
-          </p>
-        )}
-
-        {/* deposit */}
-        {activeComponent ===
-          "deposit" && (
+        {activeComponent === "deposit" && (
           <TellerFunc type="deposit" />
         )}
 
-        {/* withdraw */}
-        {activeComponent ===
-          "withdraw" && (
+        {activeComponent === "withdraw" && (
           <TellerFunc type="withdraw" />
         )}
 
-        {/* transfer */}
-        {activeComponent ===
-          "transfer" && (
+        {activeComponent === "transfer" && (
           <TellerFunc type="transfer" />
         )}
 
-        {/* FIXED HISTORY */}
-        {activeComponent ===
-          "history" && <History />}
+        {activeComponent === "history" && (
+          <History />
+        )}
       </section>
     </main>
   );

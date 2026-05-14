@@ -2,84 +2,103 @@
 
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
-import { doc, getDoc, collection, getDocs } from "firebase/firestore";
+import {
+  collection,
+  query,
+  where,
+  getDocs,
+  onSnapshot,
+} from "firebase/firestore";
+
 import "../../styles/admin.css";
 
 export default function UserPage() {
-  const [account, setAccount] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [accounts, setAccounts] = useState<any[]>([]);
+  const [transactions, setTransactions] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
 
+  // ================= LOAD ACCOUNTS =================
   useEffect(() => {
-    const loadUserData = async () => {
-      const userId = localStorage.getItem("loggedInAccountId");
+    async function loadUserData() {
+      const userId = localStorage.getItem("loggedInUserId");
 
       if (!userId) {
         window.location.href = "/";
         return;
       }
 
-      try {
-        // GET ACCOUNT (direct lookup)
-        const accRef = doc(db, "Accounts", userId);
-        const accSnap = await getDoc(accRef);
+      const q = query(
+        collection(db, "Accounts"),
+        where("accountOwnerID", "==", userId)
+      );
 
-        if (!accSnap.exists()) {
-          alert("Account not found");
-          return;
-        }
+      const snap = await getDocs(q);
 
-        const accData = {
-          id: accSnap.id,
-          ...accSnap.data(),
-        };
+      const list = snap.docs.map((doc) => ({
+        id: doc.id,
+        ...doc.data(),
+      }));
 
-        setAccount(accData);
-
-        // GET TRANSACTIONS
-        const transSnap = await getDocs(collection(db, "transcactions"));
-
-        const userTransactions = transSnap.docs
-          .map((doc) => ({
-            id: doc.id,
-            ...doc.data(),
-          }))
-          .filter((t: any) => t.accountId === userId); //IMPORTANT CHANGE
-
-        // sort newest first
-        userTransactions.sort((a: any, b: any) => {
-          const aDate = a.date?.seconds ? a.date.seconds * 1000 : a.date;
-          const bDate = b.date?.seconds ? b.date.seconds * 1000 : b.date;
-          return new Date(bDate).getTime() - new Date(aDate).getTime();
-        });
-
-        setTransactions(userTransactions);
-        setLoading(false);
-      } catch (err) {
-        console.error(err);
-        alert("Error loading data");
-      }
-    };
+      setAccounts(list);
+      setLoading(false);
+    }
 
     loadUserData();
   }, []);
+
+  // ================= LOAD TRANSACTIONS =================
+  useEffect(() => {
+    if (accounts.length === 0) return;
+
+    const unsubscribes: any[] = [];
+
+    accounts.forEach((account) => {
+      const q = query(
+        collection(db, "transcactions"),
+        where("accountId", "==", account.id)
+      );
+
+      const unsub = onSnapshot(q, (snap) => {
+        setTransactions((prev) => ({
+          ...prev,
+          [account.id]: snap.docs.map((d) => ({
+            id: d.id,
+            ...d.data(),
+          })),
+        }));
+      });
+
+      unsubscribes.push(unsub);
+    });
+
+    return () => unsubscribes.forEach((u) => u());
+  }, [accounts]);
+
+  // 🧠 TOTAL BALANCE CALC
+  const totalBalance = accounts.reduce(
+    (sum, acc) => sum + Number(acc.balance || 0),
+    0
+  );
 
   if (loading) return <p>Loading...</p>;
 
   return (
     <main className="admin-container">
-      <aside className="admin-sidebar">
-        <h2 className="admin-text">Main Page</h2>
 
-        <div className="admin-text">
-          Balance:
-          <br />
-         <strong>
-  {Number(account.balance).toLocaleString("en-US", {
-    style: "currency",
-    currency: "USD",
-  })}
-</strong>
+      {/* ================= SIDEBAR ================= */}
+      <aside className="admin-sidebar">
+        <h2>My Accounts</h2>
+
+        {/* 🔥 TOTAL BALANCE RIGHT UNDER TITLE */}
+        <div className="total-money-card">
+          <div className="total-label">Total Balance</div>
+
+          <div className="total-amount">
+            {totalBalance.toLocaleString("en-US", {
+              style: "currency",
+              currency: "USD",
+            })}
+          </div>
         </div>
 
         <button
@@ -93,28 +112,46 @@ export default function UserPage() {
         </button>
       </aside>
 
+      {/* ================= CONTENT ================= */}
       <section className="admin-content">
-        <h1 className="admin-text">Welcome</h1>
+        <h1>Welcome</h1>
 
-        <h3>Your Transactions</h3>
-
-        {transactions.length === 0 ? (
-          <p>No transactions yet.</p>
+        {accounts.length === 0 ? (
+          <p>No accounts found.</p>
         ) : (
-          <div style={{ maxHeight: "400px", overflowY: "auto" }}>
-            <ul>
-              {transactions.map((t) => (
-                <li key={t.id} style={{ marginBottom: "10px" }}>
-                  <strong>{t.type}</strong> — ${t.amount}
-                  <br />
-                  Date:{" "}
-                  {new Date(
-                    t.date?.seconds ? t.date.seconds * 1000 : t.date
-                  ).toLocaleString()}
-                </li>
-              ))}
-            </ul>
-          </div>
+          accounts.map((account) => (
+            <div key={account.id}>
+              <h3>{account.type || "Account"}</h3>
+
+              <p>
+                Balance:{" "}
+                <strong>
+                  {Number(account.balance).toLocaleString("en-US", {
+                    style: "currency",
+                    currency: "USD",
+                  })}
+                </strong>
+              </p>
+
+              <div>
+                <h4>Transactions</h4>
+
+                {transactions[account.id]?.length > 0 ? (
+                  transactions[account.id].map((t) => (
+                    <div key={t.id}>
+                      <b>{t.type}</b> — ${t.amount}
+                      <br />
+                      <small>
+                        {t.date?.toDate?.()?.toLocaleString?.() || "Pending"}
+                      </small>
+                    </div>
+                  ))
+                ) : (
+                  <p>No transactions</p>
+                )}
+              </div>
+            </div>
+          ))
         )}
       </section>
     </main>

@@ -11,6 +11,7 @@ import {
   serverTimestamp,
   onSnapshot,
 } from "firebase/firestore";
+
 import "../styles/teller.css";
 
 type Props = {
@@ -23,11 +24,34 @@ export default function TellerFunc({ type }: Props) {
   const [amount, setAmount] = useState<number>(0);
   const [transactions, setTransactions] = useState<any[]>([]);
 
-  // Listen for real-time changes to the Accounts collection
-  // Updates account list and balances instantly whenever Firestore changes
+  // ================= LOAD ACCOUNTS =================
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "Accounts"), (snapshot) => {
-      setAccounts(
+      const list = snapshot.docs.map((d) => ({
+        id: d.id,
+        ...d.data(),
+      }));
+
+      setAccounts(list);
+
+      if (!selected.from && list.length > 0) {
+        setSelected((prev) => ({
+          ...prev,
+          from: list[0].id,
+          to: list[0].id,
+        }));
+      }
+    });
+
+    return () => unsub();
+  }, []);
+
+  // ================= TRANSACTIONS =================
+  useEffect(() => {
+    if (type !== "history") return;
+
+    const unsub = onSnapshot(collection(db, "transcactions"), (snapshot) => {
+      setTransactions(
         snapshot.docs.map((d) => ({
           id: d.id,
           ...d.data(),
@@ -35,27 +59,9 @@ export default function TellerFunc({ type }: Props) {
       );
     });
 
-    // Stop listening when component unmounts to avoid memory leaks
-    return () => unsub();
-  }, []);
-
-  // Only run this listener when viewing the history tab
-  // Keeps transaction list in sync with Firestore in real time
-  useEffect(() => {
-    if (type !== "history") return;
-
-    const unsub = onSnapshot(collection(db, "transcactions"), (snapshot) => {
-      const data = snapshot.docs.map((d) => ({
-        id: d.id,
-        ...d.data(),
-      }));
-      setTransactions(data);
-    });
-
     return () => unsub();
   }, [type]);
 
-  // Writes a new transaction record to Firestore with a server-generated timestamp
   const logTransaction = async (data: any) => {
     await addDoc(collection(db, "transcactions"), {
       ...data,
@@ -63,66 +69,91 @@ export default function TellerFunc({ type }: Props) {
     });
   };
 
+  // ================= MAIN ACTION =================
   const handleSubmit = async () => {
     if (amount <= 0) {
       alert("Enter valid amount");
       return;
     }
 
-    // Grab the logged-in user's ID from localStorage for transaction logging
     const userId = localStorage.getItem("loggedInAccountId") || "unknown";
 
-    // ===== TRANSFER =====
+    // ================= TRANSFER =================
     if (type === "transfer") {
-      if (!selected.from || !selected.to) {
-        alert("Select both accounts");
-        return;
-      }
+      if (!selected.from || !selected.to) return alert("Select accounts");
 
-      if (selected.from === selected.to) {
-        alert("Cannot transfer to same account");
-        return;
-      }
+      if (selected.from === selected.to)
+        return alert("Cannot transfer to same account");
+
+      const fromAcc = accounts.find((a) => a.id === selected.from);
+      if (!fromAcc) return alert("Account not found");
+
+      if (Number(fromAcc.balance) < amount)
+        return alert("Insufficient funds");
 
       const fromRef = doc(db, "Accounts", selected.from);
       const toRef = doc(db, "Accounts", selected.to);
 
-      // Deduct from sender and add to receiver atomically
       await updateDoc(fromRef, { balance: increment(-amount) });
       await updateDoc(toRef, { balance: increment(amount) });
 
-      // Log both sides of the transfer as separate transaction records
-      await logTransaction({ type: "transfer-out", amount, accountId: selected.from, userId });
-      await logTransaction({ type: "transfer-in", amount, accountId: selected.to, userId });
+      await logTransaction({
+        type: "transfer-out",
+        amount,
+        accountId: selected.from,
+        userId,
+      });
+
+      await logTransaction({
+        type: "transfer-in",
+        amount,
+        accountId: selected.to,
+        userId,
+      });
 
       alert("Transfer successful");
       return;
     }
 
-    // ===== DEPOSIT / WITHDRAW =====
-    if (!selected.from) {
-      alert("Select account");
-      return;
-    }
+    // ================= DEPOSIT / WITHDRAW =================
+    if (!selected.from) return alert("Select account");
+
+    const account = accounts.find((a) => a.id === selected.from);
+    if (!account) return alert("Account not found");
 
     const ref = doc(db, "Accounts", selected.from);
 
-    if (type === "deposit") {
-      // Add funds to the selected account
-      await updateDoc(ref, { balance: increment(amount) });
-      await logTransaction({ type: "deposit", amount, accountId: selected.from, userId });
-      alert("Deposit successful");
+    if (type === "withdraw") {
+      if (Number(account.balance) < amount)
+        return alert("Insufficient funds");
+
+      await updateDoc(ref, { balance: increment(-amount) });
+
+      await logTransaction({
+        type: "withdrawal",
+        amount,
+        accountId: selected.from,
+        userId,
+      });
+
+      alert("Withdrawal successful");
     }
 
-    if (type === "withdraw") {
-      // Deduct funds from the selected account
-      await updateDoc(ref, { balance: increment(-amount) });
-      await logTransaction({ type: "withdrawal", amount, accountId: selected.from, userId });
-      alert("Withdrawal successful");
+    if (type === "deposit") {
+      await updateDoc(ref, { balance: increment(amount) });
+
+      await logTransaction({
+        type: "deposit",
+        amount,
+        accountId: selected.from,
+        userId,
+      });
+
+      alert("Deposit successful");
     }
   };
 
-  // ================= HISTORY VIEW =================
+  // ================= HISTORY =================
   if (type === "history") {
     return (
       <div className="teller-container">
@@ -131,100 +162,92 @@ export default function TellerFunc({ type }: Props) {
         {transactions.length === 0 ? (
           <p>No transactions found.</p>
         ) : (
-          <div style={{ maxHeight: "400px", overflowY: "auto" }}>
-            <ul>
-              {transactions.map((t, i) => (
-                <li key={i} style={{ marginBottom: "10px" }}>
-                  <strong>{t.type?.toUpperCase()}</strong> — ${t.amount}
-                  <br />
-                  Account: {t.accountId}
-                  <br />
-                  {/* toDate() converts Firestore Timestamp to JS Date; falls back to "Pending" before serverTimestamp resolves */}
-                  Date: {t.date?.toDate?.()?.toLocaleString?.() || "Pending"}
-                </li>
-              ))}
-            </ul>
-          </div>
+          <ul>
+            {transactions.map((t) => (
+              <li key={t.id}>
+                <b>{t.type}</b> — ${t.amount}
+                <br />
+                Account: {t.accountId}
+                <br />
+                {t.date?.toDate?.()?.toLocaleString?.() || "Pending"}
+              </li>
+            ))}
+          </ul>
         )}
       </div>
     );
   }
 
-  // ================= DEPOSIT / WITHDRAW / TRANSFER UI =================
+  // ================= UI =================
   return (
     <div className="teller-container">
       <h2>
-        {type === "deposit"
-          ? "Deposit Funds"
-          : type === "withdraw"
-          ? "Withdraw Funds"
-          : "Transfer Funds"}
-      </h2>
-
-      {/* Transfer needs two account selectors; deposit/withdraw only need one */}
-      {type === "transfer" ? (
-        <>
-          <label className="teller-label">From:</label>
-          <select
-            className="teller-select"
-            value={selected.from}
-            onChange={(e) => setSelected({ ...selected, from: e.target.value })}
-          >
-            <option value="">Select Account</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.id} (${acc.balance})
-              </option>
-            ))}
-          </select>
-
-          <label className="teller-label">To:</label>
-          <select
-            className="teller-select"
-            value={selected.to}
-            onChange={(e) => setSelected({ ...selected, to: e.target.value })}
-          >
-            <option value="">Select Account</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.id} (${acc.balance})
-              </option>
-            ))}
-          </select>
-        </>
-      ) : (
-        <>
-          <label className="teller-label">Account:</label>
-          <select
-            className="teller-select"
-            value={selected.from}
-            onChange={(e) => setSelected({ ...selected, from: e.target.value })}
-          >
-            <option value="">Select Account</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.id} (${acc.balance})
-              </option>
-            ))}
-          </select>
-        </>
-      )}
-
-      <label className="teller-label">Amount:</label>
-      <input
-        style={{ width: "96%" }}
-        className="teller-input"
-        type="number"
-        value={amount}
-        onChange={(e) => setAmount(Number(e.target.value))}
-      />
-
-      <button className="teller-button" onClick={handleSubmit}>
         {type === "deposit"
           ? "Deposit"
           : type === "withdraw"
           ? "Withdraw"
           : "Transfer"}
+      </h2>
+
+      {type === "transfer" ? (
+        <>
+          <select
+            className="teller-select"
+            value={selected.from}
+            onChange={(e) =>
+              setSelected({ ...selected, from: e.target.value })
+            }
+          >
+            <option value="">From</option>
+            {accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.id} (${a.balance})
+              </option>
+            ))}
+          </select>
+
+          <select
+            className="teller-select"
+            value={selected.to}
+            onChange={(e) =>
+              setSelected({ ...selected, to: e.target.value })
+            }
+          >
+            <option value="">To</option>
+            {accounts.map((a) => (
+              <option key={a.id} value={a.id}>
+                {a.id} (${a.balance})
+              </option>
+            ))}
+          </select>
+        </>
+      ) : (
+        <select
+          className="teller-select"
+          value={selected.from}
+          onChange={(e) =>
+            setSelected({ ...selected, from: e.target.value })
+          }
+        >
+          <option value="">Select Account</option>
+          {accounts.map((a) => (
+            <option key={a.id} value={a.id}>
+              {a.id} (${a.balance})
+            </option>
+          ))}
+        </select>
+      )}
+
+      <input
+        className="teller-input"
+        type="number"
+        placeholder="Enter amount"
+        value={amount || ""}
+        onChange={(e) => setAmount(Number(e.target.value))}
+      />
+
+      <button className="teller-button" onClick={handleSubmit}>
+        {type}
       </button>
     </div>
   );

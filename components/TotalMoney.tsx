@@ -8,37 +8,28 @@ export default function TotalMoney() {
   const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    const unsubscribe = onSnapshot(
-      collection(db, "Accounts"),
-      (snapshot) => {
-        let sum = 0;
+    const unsub = onSnapshot(collection(db, "Accounts"), (snapshot) => {
+      let sum = 0;
 
-        snapshot.forEach((doc) => {
-          const data = doc.data();
-          const balance = parseFloat(data?.balance);
+      snapshot.forEach((doc) => {
+        sum += Number(doc.data()?.balance || 0);
+      });
 
-          if (!isNaN(balance)) {
-            sum += balance;
-          }
-        });
+      setTotal(sum);
+    });
 
-        setTotal(sum);
-      },
-      (error) => {
-        console.error("Firestore snapshot error:", error);
-      }
-    );
-
-    return () => unsubscribe();
+    return () => unsub();
   }, []);
 
   return (
-    <div style={{ fontSize: 20, marginTop: 5 }}>
-      Total Money:{" "}
-      {total.toLocaleString("en-US", {
-        style: "currency",
-        currency: "USD",
-      })}
+    <div>
+      <div className="total-label">Total Money</div>
+      <div className="total-amount">
+        {total.toLocaleString("en-US", {
+          style: "currency",
+          currency: "USD",
+        })}
+      </div>
     </div>
   );
 }

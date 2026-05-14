@@ -1,167 +1,96 @@
 /* =========================
-   ADMIN LAYOUT (MATCH TELLER THEME)
+   ADMIN LAYOUT
 ========================= */
 .admin-container {
   display: flex;
   min-height: 100vh;
-
   background: #0a0118;
   color: white;
-
   font-family: var(--geist-sans), sans-serif;
 }
 
 /* =========================
-   SIDEBAR (GLASS PURPLE CARD STYLE)
+   SIDEBAR
 ========================= */
 .admin-sidebar {
-  width: 240px;
+  width: 260px;
   padding: 20px;
-
-  border-right: 1px solid rgba(124, 58, 237, 0.3);
-
   background: linear-gradient(135deg, #1e0a3c, #2d1060);
-
-  box-shadow: 0 0 25px rgba(124, 58, 237, 0.25);
-
+  border-right: 1px solid rgba(124, 58, 237, 0.3);
   display: flex;
   flex-direction: column;
-  gap: 10px;
-}
-
-/* sidebar title */
-.admin-sidebar h2 {
-  margin-bottom: 15px;
-  color: #e0c6ff;
-  font-weight: 700;
+  gap: 12px;
 }
 
 /* =========================
-   BUTTONS (MATCH TELLER STYLE + ICON SUPPORT)
+   TOTAL MONEY (FIXED DISPLAY)
+========================= */
+.total-money {
+  margin-top: 15px;
+  padding: 16px;
+  border-radius: 1rem;
+  background: linear-gradient(135deg, #1e0a3c, #2d1060);
+  border: 1px solid rgba(124, 58, 237, 0.4);
+  text-align: center;
+}
+
+.total-money div {
+  font-size: 0.85rem;
+  color: #c4b5fd;
+}
+
+.total-money strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.4rem;
+  color: #a855f7;
+}
+
+/* =========================
+   BUTTONS
 ========================= */
 .admin-button {
   width: 100%;
-  padding: 0.7rem;
-
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
+  padding: 0.75rem;
+  border-radius: 0.8rem;
   border: 1px solid #5b21b6;
-  border-radius: 0.75rem;
-
   background: rgba(45, 16, 96, 0.8);
   color: white;
-
-  font-weight: 600;
-
   cursor: pointer;
-
-  transition: all 0.2s ease;
+  font-weight: 600;
 }
 
-/* icon styling */
-.sidebar-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  color: #c4b5fd;
-  min-width: 20px;
-}
-
-/* text alignment */
-.sidebar-text {
-  flex: 1;
-}
-
-/* hover glow like teller */
 .admin-button:hover {
   transform: translateY(-2px);
-  box-shadow: 0 0 12px rgba(168, 85, 247, 0.4);
   border-color: #a855f7;
 }
 
-/* active state */
 .admin-button.active {
   background: linear-gradient(135deg, #7c3aed, #a855f7);
-  border-color: #a855f7;
-
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.4);
 }
 
-/* active icon highlight */
-.admin-button.active .sidebar-icon {
-  color: white;
-}
-
-/* logout (red but same system) */
 .admin-button.logout {
-  background: linear-gradient(135deg, #ef4444, #dc2626);
+  background: linear-gradient(135deg, #dc2626, #ef4444);
   border: none;
 }
 
-.admin-button.logout:hover {
-  box-shadow: 0 0 15px rgba(239, 68, 68, 0.4);
-}
-
 /* =========================
-   MAIN CONTENT AREA (TELLER CARD STYLE)
+   MAIN AREA
 ========================= */
 .admin-content {
   flex: 1;
   padding: 25px;
-  overflow-y: auto;
-
-  background: #0a0118;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
 }
 
-/* content panels (same as teller card) */
-.admin-content > div,
-.admin-content ul,
-.admin-content p {
+/* =========================
+   FIX: MAKE CHILD CARDS BIGGER
+========================= */
+.admin-content > div {
+  padding: 18px;
+  border-radius: 1.2rem;
   background: linear-gradient(135deg, #1e0a3c, #2d1060);
-
   border: 1px solid rgba(124, 58, 237, 0.3);
-
-  border-radius: 1.5rem;
-
-  padding: 15px;
-
-  box-shadow: 0 0 20px rgba(124, 58, 237, 0.15);
-}
-
-/* headings */
-.admin-content h1 {
-  color: #e0c6ff;
-  margin-bottom: 10px;
-}
-
-.admin-content p {
-  color: #cbd5f5;
-}
-
-/* =========================
-   LIST ITEMS (BUBBLE STYLE)
-========================= */
-.admin-content li {
-  list-style: none;
-  margin-bottom: 10px;
-
-  padding: 12px;
-
-  border-radius: 1rem;
-
-  background: rgba(45, 16, 96, 0.8);
-  border: 1px solid #5b21b6;
-}
-
-/* =========================
-   TOTAL MONEY (MATCH CARD STYLE)
-========================= */
-.admin-text {
-  margin-top: 25px;
-  text-align: center;
-
-  color: #c4b5fd;
 }
