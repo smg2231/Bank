@@ -5,7 +5,6 @@ html, body {
   height: 100%;
   overflow: hidden;
 }
-
 /* Homepage container fills the screen */
 .homepage {
   height: 100vh;
@@ -18,45 +17,35 @@ html, body {
   text-align: center;
   background-color: #020617;
   color: white;
-
   font-family: var(--geist-sans), sans-serif;
-
   gap: 1rem;
   padding: 2rem;
 }
-
 /* Tagline text */
 .tagline p:first-child {
   color: #bfdbfe;
   font-size: 1.5rem;
   font-weight: 700;
 }
-
 .tagline p:last-child {
   color: #93c5fd;
   font-size: 1.2rem;
   font-weight: 400;
 }
-
 /* Disable old login form */
 .login-form {
   display: none;
 }
-
-/* =========================
-   LOGIN (always on top)
-========================= */
+/* login css*/
 .login-container {
   position: fixed;
   top: 20px;
   right: 20px;
   z-index: 10000;
-
   display: flex;
   flex-direction: column;
   align-items: flex-end;
 }
-
 .login-toggle {
   padding: 0.6rem 1rem;
   border-radius: 0.5rem;
@@ -66,47 +55,38 @@ html, body {
   cursor: pointer;
   font-weight: 600;
 }
-
 .login-dropdown {
   position: absolute;
   top: 110%;
   right: 0;
-
   background-color: #020617;
   color: white;
   border: 1px solid #1e293b;
   padding: 1rem;
   border-radius: 0.75rem;
-
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
   width: 220px;
-
   opacity: 0;
   transform: translateY(-10px) scale(0.95);
   transform-origin: top right;
   transition: all 0.2s ease;
-
   pointer-events: none;
-
   backdrop-filter: blur(10px);
   box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
 }
-
 .login-dropdown.open {
   opacity: 1;
   transform: translateY(0) scale(1);
   pointer-events: auto;
 }
-
 .login-dropdown input {
   padding: 0.5rem;
   border-radius: 0.4rem;
   border: none;
   outline: none;
 }
-
 .login-dropdown button {
   padding: 0.6rem;
   border-radius: 0.5rem;
@@ -115,30 +95,22 @@ html, body {
   color: white;
   cursor: pointer;
 }
-
-/* =========================
-   IMAGE WRAPPERS (FIXED)
-========================= */
-
+/*image wrapper*/
 /* wrapper positions ONLY — does NOT block clicks */
 .image-wrapper {
   position: fixed;
   top: 50%;
   transform: translateY(-50%);
   z-index: 1;
-
-  pointer-events: none; /* 🔥 THIS FIXES YOUR LOGIN */
+  pointer-events: none;
 }
-
 /* left/right positioning */
 .left-wrapper {
   left: 4vw;
 }
-
 .right-wrapper {
   right: 4vw;
 }
-
 /* images now handle interaction */
 .left-image,
 .right-image {
@@ -146,10 +118,8 @@ html, body {
   width: auto;
   border-radius: 1rem;
   transition: all 0.3s ease;
-
-  pointer-events: auto; /* 🔥 allow hover again */
+  pointer-events: auto; /* allow hover again */
 }
-
 /* move hover from wrapper → image */
 .left-image:hover,
 .right-image:hover {
@@ -157,37 +127,27 @@ html, body {
   border: 3px solid #4c1d95;
   box-shadow: 0 10px 30px rgba(76, 29, 149, 0.5);
 }
-/* =========================
-   TELLER BUTTON (FORCED PURPLE)
-========================= */
+/* telller button*/
 .teller-button {
   all: unset; /* removes white browser styles */
-
   width: 100%;
   padding: 0.75rem;
-
   display: inline-flex;
   justify-content: center;
   align-items: center;
-
   border-radius: 0.75rem;
-
   background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
   color: white !important;
-
   font-weight: 600;
   cursor: pointer;
-
   box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
   transition: all 0.2s ease;
 }
-
 /* hover */
 .teller-button:hover {
   transform: translateY(-2px) scale(1.02);
   box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5);
 }
-
 /* click */
 .teller-button:active {
   transform: scale(0.97);

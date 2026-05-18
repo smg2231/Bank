@@ -4,9 +4,7 @@ import Login from "@/components/Login";
 export default function Home() {
   return (
     <div className="homepage">
-
       <Login />
-
       {/* LEFT IMAGE */}
       <div className="image-wrapper left-wrapper">
         <Image
@@ -18,7 +16,6 @@ export default function Home() {
           priority
         />
       </div>
-
       {/* RIGHT IMAGE */}
       <div className="image-wrapper right-wrapper">
         <Image
@@ -42,7 +39,6 @@ export default function Home() {
           priority
         />
       </div>
-
       <div className="tagline">
         <p>Secure. Reliable. Simple.</p>
         <p>Join us today!</p>

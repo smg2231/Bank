@@ -13,27 +13,22 @@ import {
 } from "firebase/firestore";
 
 import "../styles/teller.css";
-
 type Props = {
   type: "deposit" | "withdraw" | "transfer" | "history";
 };
-
 export default function TellerFunc({ type }: Props) {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [selected, setSelected] = useState({ from: "", to: "" });
   const [amount, setAmount] = useState<number>(0);
   const [transactions, setTransactions] = useState<any[]>([]);
-
-  // ================= LOAD ACCOUNTS =================
+  // load accounts on page load and listen for changes
   useEffect(() => {
     const unsub = onSnapshot(collection(db, "Accounts"), (snapshot) => {
       const list = snapshot.docs.map((d) => ({
         id: d.id,
         ...d.data(),
       }));
-
       setAccounts(list);
-
       if (!selected.from && list.length > 0) {
         setSelected((prev) => ({
           ...prev,
@@ -42,14 +37,12 @@ export default function TellerFunc({ type }: Props) {
         }));
       }
     });
-
     return () => unsub();
   }, []);
 
-  // ================= TRANSACTIONS =================
+  //transaction history listener (only for history page)
   useEffect(() => {
     if (type !== "history") return;
-
     const unsub = onSnapshot(collection(db, "transcactions"), (snapshot) => {
       setTransactions(
         snapshot.docs.map((d) => ({
@@ -58,107 +51,84 @@ export default function TellerFunc({ type }: Props) {
         }))
       );
     });
-
     return () => unsub();
   }, [type]);
-
   const logTransaction = async (data: any) => {
     await addDoc(collection(db, "transcactions"), {
       ...data,
       date: serverTimestamp(),
     });
   };
-
-  // ================= MAIN ACTION =================
+  // handles submit for all transaction types
   const handleSubmit = async () => {
     if (amount <= 0) {
       alert("Enter valid amount");
       return;
     }
-
     const userId = localStorage.getItem("loggedInAccountId") || "unknown";
 
-    // ================= TRANSFER =================
+    //transfer logic
     if (type === "transfer") {
       if (!selected.from || !selected.to) return alert("Select accounts");
 
       if (selected.from === selected.to)
         return alert("Cannot transfer to same account");
-
       const fromAcc = accounts.find((a) => a.id === selected.from);
       if (!fromAcc) return alert("Account not found");
-
       if (Number(fromAcc.balance) < amount)
         return alert("Insufficient funds");
-
       const fromRef = doc(db, "Accounts", selected.from);
       const toRef = doc(db, "Accounts", selected.to);
-
       await updateDoc(fromRef, { balance: increment(-amount) });
       await updateDoc(toRef, { balance: increment(amount) });
-
       await logTransaction({
         type: "transfer-out",
         amount,
         accountId: selected.from,
         userId,
       });
-
       await logTransaction({
         type: "transfer-in",
         amount,
         accountId: selected.to,
         userId,
       });
-
       alert("Transfer successful");
       return;
     }
-
-    // ================= DEPOSIT / WITHDRAW =================
+    //deposit/withdraw logic
     if (!selected.from) return alert("Select account");
-
     const account = accounts.find((a) => a.id === selected.from);
     if (!account) return alert("Account not found");
-
     const ref = doc(db, "Accounts", selected.from);
-
     if (type === "withdraw") {
       if (Number(account.balance) < amount)
         return alert("Insufficient funds");
-
       await updateDoc(ref, { balance: increment(-amount) });
-
       await logTransaction({
         type: "withdrawal",
         amount,
         accountId: selected.from,
         userId,
       });
-
       alert("Withdrawal successful");
     }
-
     if (type === "deposit") {
       await updateDoc(ref, { balance: increment(amount) });
-
       await logTransaction({
         type: "deposit",
         amount,
         accountId: selected.from,
         userId,
       });
-
       alert("Deposit successful");
     }
   };
-
-  // ================= HISTORY =================
+  // transaction history UI
   if (type === "history") {
     return (
       <div className="teller-container">
         <h2>Transaction History</h2>
-
         {transactions.length === 0 ? (
           <p>No transactions found.</p>
         ) : (
@@ -177,8 +147,7 @@ export default function TellerFunc({ type }: Props) {
       </div>
     );
   }
-
-  // ================= UI =================
+  // deposit/withdraw/transfer UI
   return (
     <div className="teller-container">
       <h2>
@@ -188,7 +157,6 @@ export default function TellerFunc({ type }: Props) {
           ? "Withdraw"
           : "Transfer"}
       </h2>
-
       {type === "transfer" ? (
         <>
           <select
@@ -205,7 +173,6 @@ export default function TellerFunc({ type }: Props) {
               </option>
             ))}
           </select>
-
           <select
             className="teller-select"
             value={selected.to}
@@ -237,7 +204,6 @@ export default function TellerFunc({ type }: Props) {
           ))}
         </select>
       )}
-
       <input
         className="teller-input"
         type="number"
@@ -245,7 +211,6 @@ export default function TellerFunc({ type }: Props) {
         value={amount || ""}
         onChange={(e) => setAmount(Number(e.target.value))}
       />
-
       <button className="teller-button" onClick={handleSubmit}>
         {type}
       </button>

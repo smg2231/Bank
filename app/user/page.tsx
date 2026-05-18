@@ -1,5 +1,4 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import {
@@ -14,22 +13,18 @@ import {
   addDoc,
   serverTimestamp,
 } from "firebase/firestore";
-
 import "../../styles/admin.css";
 import "../../styles/teller.css";
-
 export default function UserPage() {
   const [accounts, setAccounts] = useState<any[]>([]);
   const [transactions, setTransactions] = useState<Record<string, any[]>>({});
   const [loading, setLoading] = useState(true);
-
-  // ================= TRANSFER STATE =================
+  //transfer states and handlers
   const [showTransfer, setShowTransfer] = useState(false);
   const [transferFrom, setTransferFrom] = useState("");
   const [transferTo, setTransferTo] = useState("");
   const [transferAmt, setTransferAmt] = useState<number>(0);
-
-  // ================= LOAD ACCOUNTS =================
+  //loading user accounts on page load
   useEffect(() => {
     async function loadUserData() {
       const userId = localStorage.getItem("loggedInUserId");
@@ -58,7 +53,7 @@ export default function UserPage() {
     loadUserData();
   }, []);
 
-  // ================= LOAD TRANSACTIONS =================
+  // loading transactions for each account
   useEffect(() => {
     if (accounts.length === 0) return;
 
@@ -81,12 +76,10 @@ export default function UserPage() {
       });
 
       unsubscribes.push(unsub);
-    });
-
+    })
     return () => unsubscribes.forEach((u) => u());
   }, [accounts]);
-
-  // ================= TRANSFER HANDLER =================
+  // transfer handling
   async function handleTransfer() {
     if (!transferFrom || !transferTo)
       return alert("Select both accounts");
@@ -117,7 +110,6 @@ export default function UserPage() {
       userId,
       date: serverTimestamp(),
     });
-
     await addDoc(collection(db, "transcactions"), {
       type: "transfer-in",
       amount: transferAmt,
@@ -125,10 +117,8 @@ export default function UserPage() {
       userId,
       date: serverTimestamp(),
     });
-
     alert("Transfer successful");
     setTransferAmt(0);
-
     // Refresh accounts to show updated balances
     const q = query(
       collection(db, "Accounts"),
@@ -137,22 +127,17 @@ export default function UserPage() {
     const snap = await getDocs(q);
     setAccounts(snap.docs.map((d) => ({ id: d.id, ...d.data() })));
   }
-
-  // ================= TOTAL BALANCE =================
+  //total balance
   const totalBalance = accounts.reduce(
     (sum, acc) => sum + Number(acc.balance || 0),
     0
   );
-
   if (loading) return <p>Loading...</p>;
-
   return (
     <main className="admin-container">
-
-      {/* ================= SIDEBAR ================= */}
+      {/*side bar*/}
       <aside className="admin-sidebar">
         <h2>My Accounts</h2>
-
         {/* TOTAL BALANCE */}
         <div className="total-money-card">
           <div className="total-label">Total Balance</div>
@@ -163,7 +148,6 @@ export default function UserPage() {
             })}
           </div>
         </div>
-
         {/* TRANSFER TOGGLE — only show if user has 2+ accounts */}
         {accounts.length >= 2 && (
           <button
@@ -173,7 +157,6 @@ export default function UserPage() {
             ⇄ Transfer
           </button>
         )}
-
         {/* TRANSFER FORM */}
         {showTransfer && accounts.length >= 2 && (
           <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
@@ -193,7 +176,6 @@ export default function UserPage() {
                 </option>
               ))}
             </select>
-
             <select
               className="teller-select"
               value={transferTo}
@@ -218,13 +200,11 @@ export default function UserPage() {
               value={transferAmt || ""}
               onChange={(e) => setTransferAmt(Number(e.target.value))}
             />
-
             <button className="teller-button" onClick={handleTransfer}>
               Confirm Transfer
             </button>
           </div>
         )}
-
         <button
           className="admin-button logout"
           onClick={() => {
@@ -236,10 +216,9 @@ export default function UserPage() {
         </button>
       </aside>
 
-      {/* ================= CONTENT ================= */}
+      {/*user page content*/}
       <section className="admin-content">
         <h1>Welcome</h1>
-
         {accounts.length === 0 ? (
           <p>No accounts found.</p>
         ) : (
@@ -256,10 +235,8 @@ export default function UserPage() {
                   })}
                 </strong>
               </p>
-
               <div>
                 <h4>Transactions</h4>
-
                 {transactions[account.id]?.length > 0 ? (
                   transactions[account.id].map((t) => (
                     <div key={t.id}>

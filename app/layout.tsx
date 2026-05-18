@@ -5,22 +5,19 @@ const geistSans = Geist({
   subsets: ["latin"],
   weight: ["400", "700"],
 });
-
 const geistMono = Geist_Mono({
   subsets: ["latin"],
   weight: ["400", "700"],
 });
-
 export const metadata: Metadata = {
   title: "BS Banking",
   description: "Created by Sheena and Bradley",
-
-  // THIS IS WHAT YOU ADD
+  //website icon in browser tab
   icons: {
     icon: "/icon.png",
   },
 };
-
+// Root layout that wraps all pages, applies global styles and fonts
 export default function RootLayout({
   children,
 }: {

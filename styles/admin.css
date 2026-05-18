@@ -1,6 +1,4 @@
-/* =========================
-   ADMIN LAYOUT
-========================= */
+/* admin container layout */
 .admin-container {
   display: flex;
   min-height: 100vh;
@@ -8,10 +6,7 @@
   color: white;
   font-family: var(--geist-sans), sans-serif;
 }
-
-/* =========================
-   SIDEBAR
-========================= */
+/* sidebar */
 .admin-sidebar {
   width: 260px;
   padding: 20px;
@@ -21,10 +16,7 @@
   flex-direction: column;
   gap: 12px;
 }
-
-/* =========================
-   TOTAL MONEY (FIXED DISPLAY)
-========================= */
+/* total money */
 .total-money {
   margin-top: 15px;
   padding: 16px;
@@ -33,22 +25,17 @@
   border: 1px solid rgba(124, 58, 237, 0.4);
   text-align: center;
 }
-
 .total-money div {
   font-size: 0.85rem;
   color: #c4b5fd;
 }
-
 .total-money strong {
   display: block;
   margin-top: 5px;
   font-size: 1.4rem;
   color: #a855f7;
 }
-
-/* =========================
-   BUTTONS
-========================= */
+/*buttons */
 .admin-button {
   width: 100%;
   padding: 0.75rem;
@@ -58,7 +45,6 @@
   color: white;
   cursor: pointer;
   font-weight: 600;
-
   /* Center content */
   display: flex;
   align-items: center;
@@ -66,24 +52,18 @@
   gap: 8px;
   text-align: center;
 }
-
 .admin-button:hover {
   transform: translateY(-2px);
   border-color: #a855f7;
 }
-
 .admin-button.active {
   background: linear-gradient(135deg, #7c3aed, #a855f7);
 }
-
 .admin-button.logout {
   background: linear-gradient(135deg, #dc2626, #ef4444);
   border: none;
 }
-
-/* =========================
-   MAIN AREA
-========================= */
+/*main */
 .admin-content {
   flex: 1;
   padding: 25px;
@@ -91,27 +71,20 @@
   flex-direction: column;
   gap: 20px;
 }
-
-/* =========================
-   FIX: MAKE CHILD CARDS BIGGER
-========================= */
+/*child cards */
 .admin-content > div {
   padding: 18px;
   border-radius: 1.2rem;
   background: linear-gradient(135deg, #1e0a3c, #2d1060);
   border: 1px solid rgba(124, 58, 237, 0.3);
 }
-
-/* =========================
-   SIDEBAR TRANSFER FORM
-========================= */
+/*sidebar*/
 .admin-sidebar .teller-select,
 .admin-sidebar .teller-input {
   padding: 0.45rem 0.6rem;
   font-size: 0.8rem;
   border-radius: 0.5rem;
 }
-
 .admin-sidebar .teller-button {
   padding: 0.5rem;
   font-size: 0.8rem;
