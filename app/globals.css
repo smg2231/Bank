@@ -1,26 +1,154 @@
-@import "tailwindcss";
-
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Prevent scrolling but keep layout features */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
 }
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Homepage container fills the screen */
+.homepage {
+  height: 100vh;
+  width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  background-color: #020617;
+  color: white;
+  font-family: var(--geist-sans), sans-serif;
+  gap: 1rem;
+  padding: 2rem;
 }
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* Tagline text */
+.tagline p:first-child {
+  color: #bfdbfe;
+  font-size: 1.5rem;
+  font-weight: 700;
 }
-
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.tagline p:last-child {
+  color: #93c5fd;
+  font-size: 1.2rem;
+  font-weight: 400;
+}
+/* Disable old login form */
+.login-form {
+  display: none;
+}
+/* login css*/
+.login-container {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10000;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+.login-toggle {
+  padding: 0.6rem 1rem;
+  border-radius: 0.5rem;
+  border: none;
+  background-color: #7c3aed;
+  color: white;
+  cursor: pointer;
+  font-weight: 600;
+}
+.login-dropdown {
+  position: absolute;
+  top: 110%;
+  right: 0;
+  background-color: #020617;
+  color: white;
+  border: 1px solid #1e293b;
+  padding: 1rem;
+  border-radius: 0.75rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  width: 220px;
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  transform-origin: top right;
+  transition: all 0.2s ease;
+  pointer-events: none;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.4);
+}
+.login-dropdown.open {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+.login-dropdown input {
+  padding: 0.5rem;
+  border-radius: 0.4rem;
+  border: none;
+  outline: none;
+}
+.login-dropdown button {
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  border: none;
+  background-color: #7c3aed;
+  color: white;
+  cursor: pointer;
+}
+/*image wrapper*/
+/* wrapper positions ONLY — does NOT block clicks */
+.image-wrapper {
+  position: fixed;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 1;
+  pointer-events: none;
+}
+/* left/right positioning */
+.left-wrapper {
+  left: 4vw;
+}
+.right-wrapper {
+  right: 4vw;
+}
+/* images now handle interaction */
+.left-image,
+.right-image {
+  height: 60vh;
+  width: auto;
+  border-radius: 1rem;
+  transition: all 0.3s ease;
+  pointer-events: auto; /* allow hover again */
+}
+/* move hover from wrapper → image */
+.left-image:hover,
+.right-image:hover {
+  transform: translateY(-10px) scale(1.05);
+  border: 3px solid #4c1d95;
+  box-shadow: 0 10px 30px rgba(76, 29, 149, 0.5);
+}
+/* telller button*/
+.teller-button {
+  all: unset; /* removes white browser styles */
+  width: 100%;
+  padding: 0.75rem;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.75rem;
+  background: linear-gradient(135deg, #7c3aed, #a855f7) !important;
+  color: white !important;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 4px 15px rgba(124, 58, 237, 0.4);
+  transition: all 0.2s ease;
+}
+/* hover */
+.teller-button:hover {
+  transform: translateY(-2px) scale(1.02);
+  box-shadow: 0 8px 25px rgba(168, 85, 247, 0.5);
+}
+/* click */
+.teller-button:active {
+  transform: scale(0.97);
 }

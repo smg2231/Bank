@@ -1,0 +1,89 @@
+body {
+  background: #0a0118;
+  min-height: 100vh;
+}
+/* teller card */
+.teller-container {
+  max-width: 700px;
+  width: 100%;
+  margin: 40px auto;
+  padding: 2rem;
+  background: linear-gradient(135deg, #1e0a3c, #2d1060);
+  color: white;
+  border: 1px solid #7c3aed;
+  border-radius: 1.5rem;
+  box-shadow: 0 0 30px rgba(124, 58, 237, 0.3);
+  display: flex;
+  flex-direction: column;
+  gap: 0.9rem;
+  /* ADD THIS */
+  box-sizing: border-box;
+}
+/* word titles*/
+.teller-container h2 {
+  margin-bottom: 10px;
+  color: #e0c6ff;
+  font-size: 1.4rem;
+  font-weight: 700;
+}
+/* labels*/
+.teller-label {
+  color: #c4b5fd;
+  font-weight: 500;
+}
+/* inputs text boxes and dropdowns */
+.teller-input,
+.teller-select {
+  width: 100%;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  border: 1px solid #5b21b6;
+  background: rgba(45, 16, 96, 0.85);
+  color: white;
+  font-size: 1rem;
+  outline: none;
+  transition: all 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  cursor: pointer;
+  /* ADD THIS */
+  box-sizing: border-box;
+}
+/* dropdown spacing */
+.teller-select {
+  padding-right: 2.5rem;
+}
+/* options */
+.teller-select option {
+  background: #1e0a3c;
+  color: white;
+}
+/* placeholder */
+.teller-input::placeholder {
+  color: #a78bfa;
+}
+/* focus glow */
+.teller-input:focus,
+.teller-select:focus {
+  border-color: #a855f7;
+  box-shadow: 0 0 0 3px rgba(168, 85, 247, 0.25);
+}
+/* teller button */
+.teller-button {
+  width: 100%;
+  padding: 0.85rem;
+  border: none;
+  border-radius: 0.85rem;
+  background: linear-gradient(135deg, #7c3aed, #a855f7);
+  color: white;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  /* optional but recommended */
+  box-sizing: border-box;
+}
+.teller-button:hover {
+  transform: translateY(-2px);
+}
