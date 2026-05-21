@@ -1,11 +1,10 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { db } from "../app/firebase";
 import { collection, onSnapshot } from "firebase/firestore";
 export default function TotalMoney() {
   const [total, setTotal] = useState(0);
-  useEffect(() => {
+  useEffect(() => { // real-time listener to calculate total money across all accounts
     const unsub = onSnapshot(collection(db, "Accounts"), (snapshot) => {
       let sum = 0;
       snapshot.forEach((doc) => {

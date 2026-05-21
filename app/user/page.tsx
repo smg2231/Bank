@@ -28,43 +28,33 @@ export default function UserPage() {
   useEffect(() => {
     async function loadUserData() {
       const userId = localStorage.getItem("loggedInUserId");
-
       if (!userId) {
         window.location.href = "/";
         return;
       }
-
       const q = query(
         collection(db, "Accounts"),
         where("accountOwnerID", "==", userId)
       );
-
       const snap = await getDocs(q);
-
       const list = snap.docs.map((doc) => ({
         id: doc.id,
         ...doc.data(),
       }));
-
       setAccounts(list);
       setLoading(false);
     }
-
     loadUserData();
   }, []);
-
   // loading transactions for each account
   useEffect(() => {
     if (accounts.length === 0) return;
-
     const unsubscribes: any[] = [];
-
     accounts.forEach((account) => {
       const q = query(
         collection(db, "transcactions"),
         where("accountId", "==", account.id)
       );
-
       const unsub = onSnapshot(q, (snap) => {
         setTransactions((prev) => ({
           ...prev,
@@ -74,7 +64,6 @@ export default function UserPage() {
           })),
         }));
       });
-
       unsubscribes.push(unsub);
     })
     return () => unsubscribes.forEach((u) => u());
@@ -83,26 +72,18 @@ export default function UserPage() {
   async function handleTransfer() {
     if (!transferFrom || !transferTo)
       return alert("Select both accounts");
-
     if (transferFrom === transferTo)
       return alert("Cannot transfer to the same account");
-
     if (transferAmt <= 0)
       return alert("Enter a valid amount");
-
     const fromAcc = accounts.find((a) => a.id === transferFrom);
-
     if (!fromAcc || Number(fromAcc.balance) < transferAmt)
       return alert("Insufficient funds");
-
     const userId = localStorage.getItem("loggedInUserId") || "unknown";
-
     const fromRef = doc(db, "Accounts", transferFrom);
     const toRef   = doc(db, "Accounts", transferTo);
-
     await updateDoc(fromRef, { balance: increment(-transferAmt) });
     await updateDoc(toRef,   { balance: increment(transferAmt) });
-
     await addDoc(collection(db, "transcactions"), {
       type: "transfer-out",
       amount: transferAmt,
@@ -192,7 +173,6 @@ export default function UserPage() {
                 </option>
               ))}
             </select>
-
             <input
               className="teller-input"
               type="number"
@@ -225,7 +205,6 @@ export default function UserPage() {
           accounts.map((account) => (
             <div key={account.id}>
               <h3>{account.type || "Account"}</h3>
-
               <p>
                 Balance:{" "}
                 <strong>

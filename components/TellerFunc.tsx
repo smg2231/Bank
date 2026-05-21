@@ -11,24 +11,23 @@ import {
   serverTimestamp,
   onSnapshot,
 } from "firebase/firestore";
-
 import "../styles/teller.css";
 type Props = {
   type: "deposit" | "withdraw" | "transfer" | "history";
 };
-export default function TellerFunc({ type }: Props) {
+export default function TellerFunc({ type }: Props) { // handles all teller functions and transaction history
   const [accounts, setAccounts] = useState<any[]>([]);
   const [selected, setSelected] = useState({ from: "", to: "" });
   const [amount, setAmount] = useState<number>(0);
   const [transactions, setTransactions] = useState<any[]>([]);
   // load accounts on page load and listen for changes
   useEffect(() => {
-    const unsub = onSnapshot(collection(db, "Accounts"), (snapshot) => {
+    const unsub = onSnapshot(collection(db, "Accounts"), (snapshot) => { // real-time listener for accounts
       const list = snapshot.docs.map((d) => ({
         id: d.id,
         ...d.data(),
       }));
-      setAccounts(list);
+      setAccounts(list); // update accounts state with latest data
       if (!selected.from && list.length > 0) {
         setSelected((prev) => ({
           ...prev,
@@ -39,7 +38,6 @@ export default function TellerFunc({ type }: Props) {
     });
     return () => unsub();
   }, []);
-
   //transaction history listener (only for history page)
   useEffect(() => {
     if (type !== "history") return;
@@ -53,7 +51,7 @@ export default function TellerFunc({ type }: Props) {
     });
     return () => unsub();
   }, [type]);
-  const logTransaction = async (data: any) => {
+  const logTransaction = async (data: any) => { // helper to log transactions to Firestore
     await addDoc(collection(db, "transcactions"), {
       ...data,
       date: serverTimestamp(),
@@ -66,11 +64,9 @@ export default function TellerFunc({ type }: Props) {
       return;
     }
     const userId = localStorage.getItem("loggedInAccountId") || "unknown";
-
     //transfer logic
     if (type === "transfer") {
       if (!selected.from || !selected.to) return alert("Select accounts");
-
       if (selected.from === selected.to)
         return alert("Cannot transfer to same account");
       const fromAcc = accounts.find((a) => a.id === selected.from);

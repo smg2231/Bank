@@ -10,40 +10,43 @@ import {
   orderBy,
 } from "firebase/firestore";
 export default function History() {
-  const [status, setStatus] = useState("processing");
-  const [message, setMessage] = useState("");
-  const [transcactions, setTransactions] = useState<any[]>([]);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [searchAccount, setSearchAccount] = useState("");
-  const [searchInput, setSearchInput] = useState("");
-  // get user
+  const [status, setStatus] = useState("processing");//load state
+  const [message, setMessage] = useState("");//error msg
+  const [transcactions, setTransactions] = useState<any[]>([]);//tx list
+  const [isAdmin, setIsAdmin] = useState(false);//admin check
+  const [searchAccount, setSearchAccount] = useState("");//active search id
+  const [searchInput, setSearchInput] = useState("");//input field
+  //get user role + default account
   useEffect(() => {
-    const id = localStorage.getItem("loggedInAccountId") || "";
-    const role = localStorage.getItem("loggedInRole") || "";
-    const admin = role.toLowerCase() === "admin";
-    setIsAdmin(admin);
+    const id = localStorage.getItem("loggedInAccountId") || "";//user id
+    const role = localStorage.getItem("loggedInRole") || "";//role
+    const admin = role.toLowerCase() === "admin";//check admin
+    setIsAdmin(admin);//set role
     if (!admin && id) {
-      setSearchAccount(id);
+      setSearchAccount(id);//force user own history
     } else {
-      setStatus("success");
+      setStatus("success");//admin starts ready
     }
   }, []);
-  // load history
+  //load transactions from firestore
   useEffect(() => {
-    if (!isAdmin && !searchAccount) return;
-    setStatus("processing");
+    if (!isAdmin && !searchAccount) return;//wait for id
+    setStatus("processing");//loading
     let q;
+    //admin searching specific account
     if (isAdmin && searchAccount) {
       q = query(
         collection(db, "transcactions"),
         where("accountId", "==", searchAccount),
         orderBy("date", "desc")
       );
+    //admin viewing all
     } else if (isAdmin) {
       q = query(
         collection(db, "transcactions"),
         orderBy("date", "desc")
       );
+    //user viewing own history
     } else {
       q = query(
         collection(db, "transcactions"),
@@ -51,6 +54,7 @@ export default function History() {
         orderBy("date", "desc")
       );
     }
+    //real-time listener
     const unsub = onSnapshot(
       q,
       (snap) => {
@@ -60,23 +64,23 @@ export default function History() {
             ...d.data(),
           }))
         );
-        setStatus("success");
+        setStatus("success");//done
       },
       (error) => {
-        console.error(error);
-        setStatus("error");
+        console.error(error);//log error
+        setStatus("error");//fail state
         setMessage(error.message || "Failed to load history");
       }
     );
-    return () => unsub();
+    return () => unsub();//cleanup listener
   }, [isAdmin, searchAccount]);
-  // admin search
+  //admin search trigger
   function handleSearch() {
-    setSearchAccount(searchInput.trim());
+    setSearchAccount(searchInput.trim());//apply search
   }
-  // format date
+  //format firestore date
   const formatDate = (d: any) => {
-    if (!d) return "No date";
+    if (!d) return "No date";//empty check
     return d?.toDate
       ? d.toDate().toLocaleString()
       : new Date(d).toLocaleString();
@@ -84,7 +88,7 @@ export default function History() {
   return (
     <div className="history-container">
       <h2>History</h2>
-      {/* admin tools */}
+      {/* admin search controls */}
       {isAdmin && (
         <div style={{ display: "flex", gap: 10, marginBottom: 10 }}>
           <input
@@ -95,23 +99,19 @@ export default function History() {
             placeholder="Account ID"
           />
           <button onClick={handleSearch}>Search</button>
-          <button
-            onClick={() => {
-              setSearchInput("");
-              setSearchAccount("");
-            }}
-          >
+          <button onClick={() => {
+            setSearchInput("");//clear input
+            setSearchAccount("");//reset filter
+          }}>
             All
           </button>
         </div>
       )}
-      {/* loading */}
+      {/* loading state */}
       {status === "processing" && <p>Loading...</p>}
-      {/* error */}
-      {status === "error" && (
-        <p style={{ color: "red" }}>{message}</p>
-      )}
-      {/* list */}
+      {/* error state */}
+      {status === "error" && <p style={{ color: "red" }}>{message}</p>}
+      {/* transaction list */}
       {status === "success" && (
         <div className="history-scroll-box">
           {transcactions.length === 0 ? (

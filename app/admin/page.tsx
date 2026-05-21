@@ -12,32 +12,40 @@ import {
   History as HistoryIcon,
   LogOut,
 } from "lucide-react";
+
 export default function AdminPage() {
   const router = useRouter();
+  // stores logged-in admin ID
   const [loggedInUserId, setLoggedInUserId] = useState("");
+  // controls which section is shown (deposit, withdraw, etc.)
   const [activeComponent, setActiveComponent] = useState<string | null>(null);
+  // loading state while checking authentication
   const [loading, setLoading] = useState(true);
-  // check auth and role on page load
+  // check user auth + role on page load
   useEffect(() => {
     const userId = localStorage.getItem("loggedInUserId");
     const role = localStorage.getItem("loggedInRole");
     const isAdmin = role?.trim().toLowerCase() === "admin";
+    // redirect if not logged in
     if (!userId) {
       router.replace("/");
       return;
     }
+    // redirect if not admin
     if (!isAdmin) {
       router.replace("/user");
       return;
     }
+    // valid admin user
     setLoggedInUserId(userId);
     setLoading(false);
   }, [router]);
+  // clears session and logs user out
   const handleLogout = () => {
     localStorage.clear();
     router.replace("/");
   };
-//titles 
+  // sidebar action buttons
   const actions = [
     { title: "Deposit", type: "deposit", icon: Banknote },
     { title: "Withdraw", type: "withdraw", icon: ArrowDownToLine },
@@ -45,9 +53,11 @@ export default function AdminPage() {
     { title: "History", type: "history", icon: HistoryIcon },
     { title: "Logout", type: "logout", icon: LogOut },
   ];
+  // show nothing while checking auth
   if (loading) return null;
   return (
     <main className="admin-container">
+      {/* Sidebar navigation */}
       <aside className="admin-sidebar">
         <h2>Actions</h2>
         {actions.map((action) => {
@@ -67,26 +77,21 @@ export default function AdminPage() {
             </button>
           );
         })}
-        {/*total money/teller func active component props */}
+        {/* displays total money overview */}
         <div className="total-money">
           <TotalMoney />
         </div>
       </aside>
+      {/* Main content area */}
       <section className="admin-content">
         <h1>Admin Dashboard</h1>
+        {/* default state */}
         {!activeComponent && <p>Select an action</p>}
-        {activeComponent === "deposit" && (
-          <TellerFunc type="deposit" />
-        )}
-        {activeComponent === "withdraw" && (
-          <TellerFunc type="withdraw" />
-        )}
-        {activeComponent === "transfer" && (
-          <TellerFunc type="transfer" />
-        )}
-        {activeComponent === "history" && (
-          <History />
-        )}
+        {/* conditional rendering based on selected action */}
+        {activeComponent === "deposit" && <TellerFunc type="deposit" />}
+        {activeComponent === "withdraw" && <TellerFunc type="withdraw" />}
+        {activeComponent === "transfer" && <TellerFunc type="transfer" />}
+        {activeComponent === "history" && <History />}
       </section>
     </main>
   );

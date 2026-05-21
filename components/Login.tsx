@@ -1,9 +1,7 @@
 "use client";
-
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { db } from "../app/firebase";
-
 import {
   collection,
   query,
@@ -17,7 +15,7 @@ export default function Login() {
   const [visible, setVisible] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const router = useRouter();
-  useEffect(() => {
+  useEffect(() => { //check for existing session on component mount
     const id = localStorage.getItem("loggedInUserId");
     setIsLoggedIn(!!id);
   }, []);
@@ -25,24 +23,23 @@ export default function Login() {
     if (open) setVisible(true);
     else setTimeout(() => setVisible(false), 200);
   }, [open]);
-  async function loginbutton() {
+  async function loginbutton() { //handles login logic
     const cleanUsername = userID.trim();
     const cleanPassword = password.trim();
-
     if (!cleanUsername || !cleanPassword) {
       alert("Enter username and password");
       return;
     }
-    try {
+    try { //query for user with matching username
       const q = query(
         collection(db, "Users"),
         where("username", "==", cleanUsername)
-      );
+      ); //assumes usernames are unique
       const snap = await getDocs(q);
       if (snap.empty) {
         alert("User not found");
         return;
-      }
+      } //validate password
       const userDoc = snap.docs[0];
       const userData = userDoc.data();
       if (cleanPassword !== userData.password) {
